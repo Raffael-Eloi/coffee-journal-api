@@ -1,1 +1,6 @@
-<Solution />
+<Solution>
+  <Project Path="src/Coffee.Journal.API/Coffee.Journal.API.csproj" Id="61e19f9e-964b-4ddd-995d-7c30a6d5170c" />
+  <Project Path="src/Coffee.Journal.Application/Coffee.Journal.Application.csproj" Id="ff02b562-4674-4550-b775-8a74b64876e6" />
+  <Project Path="src/Coffee.Journal.Domain/Coffee.Journal.Domain.csproj" Id="f8b34b6a-e66d-43fd-aaca-05021f296b00" />
+  <Project Path="src/Coffee.Journal.Infrastructure/Coffee.Journal.Infrastructure.csproj" Id="968a5d5e-ce99-4a6f-860b-e93cb3721b1f" />
+</Solution>
