@@ -20,8 +20,8 @@ public class CoffeeSuplierUseCase : ICoffeeSuplierUseCase
         {
             Name = request.Name,
             Website = request.Website,
-            Recommend = request.Recommend,
-            HasMembershipOption = request.HasMembershipOption,
+            Recommend = request.Recommend.GetValueOrDefault(),
+            HasMembershipOption = request.HasMembershipOption.GetValueOrDefault(),
             Rate = request.Rate,
             Review = request.Review,
             LogoUrl = request.LogoUrl,
