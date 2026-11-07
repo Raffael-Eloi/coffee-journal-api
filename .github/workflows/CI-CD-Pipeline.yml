@@ -9,7 +9,7 @@ on:
 jobs:
   build:
     name: Build
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
 
     steps:
       - name: Checkout code
@@ -41,7 +41,7 @@ jobs:
 
   tests:
     name: Unit Tests
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     needs: build
 
     steps:
