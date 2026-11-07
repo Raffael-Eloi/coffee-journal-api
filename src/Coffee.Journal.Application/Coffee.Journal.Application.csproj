@@ -6,4 +6,8 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Coffee.Journal.Domain\Coffee.Journal.Domain.csproj" />
+  </ItemGroup>
+
 </Project>
