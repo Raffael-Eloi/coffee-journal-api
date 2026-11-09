@@ -27,7 +27,6 @@ public class CoffeeSuplierUseCase : ICoffeeSuplierUseCase
             LogoUrl = request.LogoUrl,
         };
 
-        Guid supplierId = await _repository.AddAsync(supplier);
-        return supplierId;
+        return await _repository.AddAsync(supplier);
     }
 }
