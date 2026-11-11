@@ -4,11 +4,15 @@ on:
   push:
     branches:
       - "main"
+    paths:
+      - "src/**"
+      - "tests/**"
+
   workflow_dispatch:
 
 jobs:
   build:
-    name: Build
+    name: Build and Test
     runs-on: ubuntu-26.04
 
     steps:
@@ -30,38 +34,60 @@ jobs:
       - name: Restore dependencies
         run: dotnet restore
 
-      - name: dotnet publish
-        run: dotnet publish src/Coffee.Journal.API -c Release -o ${{env.DOTNET_ROOT}}/myapp
-
-      - name: Upload artifact for deployment job
-        uses: actions/upload-artifact@v7
-        with:
-          name: .net-app
-          path: ${{env.DOTNET_ROOT}}/myapp
-
-  tests:
-    name: Unit Tests
-    runs-on: ubuntu-26.04
-    needs: build
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v6
-      - name: Setup .NET SDK
-        uses: actions/setup-dotnet@v5
-        with:
-          dotnet-version: 10.0.x
-
-      - name: Cache NuGet packages
-        uses: actions/cache@v6
-        with:
-          path: ~/.nuget/packages
-          key: nuget-${{ runner.os }}-${{ hashFiles('**/*.csproj') }}
-          restore-keys: |
-            nuget-${{ runner.os }}-
-
-      - name: Restore dependencies
-        run: dotnet restore
+      - name: Build
+        run: dotnet build --no-restore -c Release
 
       - name: Run Tests
-        run: dotnet test --no-restore
+        run: dotnet test --no-build -c Release
+
+  publishDockerImage:
+    name: Push Docker image to Docker Hub
+    runs-on: ubuntu-26.04
+    needs: build
+    outputs:
+      image-tag: ${{ steps.datetime.outputs.now }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      - name: Get current datetime
+        id: datetime
+        run: echo "now=$(TZ='America/Sao_Paulo' date +'%Y-%m-%d--%H.%M.%S')" >> $GITHUB_OUTPUT
+
+      - name: Build and tag image
+        run: |
+          docker build \
+          -f src/Coffee.Journal.API/Dockerfile \
+          -t ${{ vars.DOCKERHUB_USERNAME }}/coffee-journal-api:${{ steps.datetime.outputs.now }} \
+          .
+
+      - name: Login to Docker Hub
+        run: echo "${{ secrets.DOCKERHUB_TOKEN }}" | docker login -u ${{ vars.DOCKERHUB_USERNAME }} --password-stdin
+
+      - name: Push image
+        run: docker push ${{ vars.DOCKERHUB_USERNAME }}/coffee-journal-api:${{ steps.datetime.outputs.now }}
+
+  deploy:
+    name: Deploy to Azure App Service
+    runs-on: ubuntu-26.04
+    needs: publishDockerImage
+    environment: "production"
+    permissions:
+      id-token: write #This is required for requesting the JWT
+      contents: read #This is required for actions/checkout
+
+    steps:
+      - name: Login to Azure
+        uses: azure/login@v3
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Deploy to Azure Web App
+        id: deploy-to-webapp
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: "app-coffee-journal-api"
+          images: ${{ vars.DOCKERHUB_USERNAME }}/coffee-journal-api:${{ needs.publishDockerImage.outputs.image-tag }}
