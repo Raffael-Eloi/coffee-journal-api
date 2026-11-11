@@ -1,9 +1,7 @@
 using Coffee.Journal.API.Endpoints;
 using Coffee.Journal.Application.Contracts.UseCases;
 using Coffee.Journal.Application.UseCases;
-using Coffee.Journal.Domain.Contracts.Repositories;
 using Coffee.Journal.Infrastructure;
-using Coffee.Journal.Infrastructure.Repositories;
 using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -18,8 +16,6 @@ builder.Services.AddInfrastructure(
     ?? throw new InvalidOperationException("Connection string 'CoffeeJournal' not found."));
 
 builder.Services.AddScoped<ICoffeeSuplierUseCase, CoffeeSuplierUseCase>();
-
-builder.Services.AddScoped<ICoffeeSupplierRepository, CoffeeSupplierRepository>();
 
 var app = builder.Build();
 
