@@ -5,8 +5,7 @@ using System.Text.Json;
 
 namespace Coffee.Journal.API.Endpoints;
 
-// TODO: Add sealed to classes
-public class CoffeeSupplierEndpoint
+public sealed class CoffeeSupplierEndpoint
 {
     public static void Map(WebApplication app)
     {

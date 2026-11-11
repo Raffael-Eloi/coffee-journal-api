@@ -2,30 +2,30 @@
 
 namespace Coffee.Journal.Application.Contracts.Models;
 
-public class CoffeeSupplierRequest
+public sealed class CoffeeSupplierRequest
 {
     [MaxLength(250)]
     [Required]
-    public string Name { get; set; } = string.Empty;
+    public string Name { get; init; } = string.Empty;
 
     [MaxLength(500)]
     [Url]
-    public string? Website { get; set; }
+    public string? Website { get; init; }
 
     [Range(1, 5)]
-    public int Rate { get; set; }
+    public int Rate { get; init; }
 
     [MaxLength(4000)]
     [Required]
-    public string Review { get; set; } = string.Empty;
+    public string Review { get; init; } = string.Empty;
 
     [Required]
-    public bool? Recommend { get; set; }
+    public bool? Recommend { get; init; }
 
     [Required]
-    public bool? HasMembershipOption { get; set; }
+    public bool? HasMembershipOption { get; init; }
 
     [MaxLength(4000)]
     [Url]
-    public string? LogoUrl { get; set; }
+    public string? LogoUrl { get; init; }
 }

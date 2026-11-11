@@ -1,24 +1,24 @@
 namespace Coffee.Journal.Application.Contracts.Models;
 
-public class CoffeeSupplierResponse
+public sealed class CoffeeSupplierResponse
 {
-    public Guid Id { get; set; }
+    public Guid Id { get; init; }
 
-    public string Name { get; set; } = string.Empty;
+    public string Name { get; init; } = string.Empty;
 
-    public string? Website { get; set; }
+    public string? Website { get; init; }
 
-    public int Rate { get; set; }
+    public int Rate { get; init; }
 
-    public string Review { get; set; } = string.Empty;
+    public string Review { get; init; } = string.Empty;
 
-    public bool Recommend { get; set; }
+    public bool Recommend { get; init; }
 
-    public bool HasMembershipOption { get; set; }
+    public bool HasMembershipOption { get; init; }
 
-    public string? LogoUrl { get; set; }
+    public string? LogoUrl { get; init; }
 
-    public DateTime CreatedAt { get; set; }
+    public DateTime CreatedAt { get; init; }
 
-    public DateTime UpdatedAt { get; set; }
+    public DateTime UpdatedAt { get; init; }
 }

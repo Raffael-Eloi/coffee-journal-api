@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 namespace Coffee.Journal.Infrastructure.Database.Contexts;
 
 // TODO: should this class be public?
-public class CoffeeJournalDbContext : DbContext
+public sealed class CoffeeJournalDbContext : DbContext
 {
     public CoffeeJournalDbContext(DbContextOptions<CoffeeJournalDbContext> options)
         : base(options)

@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Coffee.Journal.Infrastructure.Database.Configuration;
 
-internal class CoffeeSupplierConfiguration : IEntityTypeConfiguration<CoffeeSupplier>
+internal sealed class CoffeeSupplierConfiguration : IEntityTypeConfiguration<CoffeeSupplier>
 {
     public void Configure(EntityTypeBuilder<CoffeeSupplier> builder)
     {

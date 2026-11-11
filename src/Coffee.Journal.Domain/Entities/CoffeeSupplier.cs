@@ -1,8 +1,8 @@
 ﻿namespace Coffee.Journal.Domain.Entities;
 
-public class CoffeeSupplier
+public sealed class CoffeeSupplier
 {
-    public Guid Id { get; set; } = Guid.NewGuid();
+    public Guid Id { get; init; } = Guid.NewGuid();
 
     public required string Name { get; set; }
 

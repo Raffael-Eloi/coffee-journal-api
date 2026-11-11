@@ -6,7 +6,7 @@ using Coffee.Journal.Domain.Entities;
 
 namespace Coffee.Journal.Application.UseCases;
 
-public class CoffeeSuplierUseCase : ICoffeeSuplierUseCase
+public sealed class CoffeeSuplierUseCase : ICoffeeSuplierUseCase
 {
     private readonly ICoffeeSupplierRepository _repository;
 

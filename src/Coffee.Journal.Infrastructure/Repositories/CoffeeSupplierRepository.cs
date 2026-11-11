@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Coffee.Journal.Infrastructure.Repositories;
 
-public class CoffeeSupplierRepository : ICoffeeSupplierRepository
+public sealed class CoffeeSupplierRepository : ICoffeeSupplierRepository
 {
     private readonly CoffeeJournalDbContext _dbContext;
 
