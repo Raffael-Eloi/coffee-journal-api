@@ -41,6 +41,18 @@ internal class CoffeeSupplierConfiguration : IEntityTypeConfiguration<CoffeeSupp
             .Property(x => x.LogoUrl)
             .HasMaxLength(4000);
 
+        builder
+            .Property(x => x.CreatedAt)
+            .IsRequired();
+
+        builder
+            .Property(x => x.UpdatedAt)
+            .IsRequired();
+
+        builder
+            .HasIndex(x => x.Name)
+            .IsUnique()
+            .HasDatabaseName("UX_CoffeeSuppliers_Name"); ;
 
         builder
             .ToTable("CoffeeSuppliers", t => t.HasCheckConstraint("CK_CoffeeSuppliers_Rate", "[Rate] BETWEEN 1 AND 5"));

@@ -17,4 +17,8 @@ public class CoffeeSupplier
     public required bool HasMembershipOption { get; set; }
 
     public string? LogoUrl { get; set; }
+
+    public DateTime CreatedAt { get; set; }
+    
+    public DateTime UpdatedAt { get; set; }
 }

@@ -3,7 +3,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Coffee.Journal.Infrastructure.Database.Contexts;
 
-internal class CoffeeJournalDbContext : DbContext
+// TODO: should this class be public?
+public class CoffeeJournalDbContext : DbContext
 {
     public CoffeeJournalDbContext(DbContextOptions<CoffeeJournalDbContext> options)
         : base(options)
