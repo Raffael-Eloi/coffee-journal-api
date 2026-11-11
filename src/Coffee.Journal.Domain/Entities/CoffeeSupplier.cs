@@ -1,9 +1,7 @@
 ﻿namespace Coffee.Journal.Domain.Entities;
 
-public sealed class CoffeeSupplier
+public sealed class CoffeeSupplier : BaseEntity
 {
-    public Guid Id { get; init; } = Guid.NewGuid();
-
     public required string Name { get; set; }
 
     public string? Website { get; set; }
@@ -17,8 +15,4 @@ public sealed class CoffeeSupplier
     public required bool HasMembershipOption { get; set; }
 
     public string? LogoUrl { get; set; }
-
-    public DateTime CreatedAt { get; set; }
-    
-    public DateTime UpdatedAt { get; set; }
 }
