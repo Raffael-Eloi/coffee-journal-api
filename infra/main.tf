@@ -24,6 +24,12 @@ resource "azurerm_linux_web_app" "main" {
     WEBSITES_PORT = "8080"
   }
 
+  connection_string {
+    name  = "CoffeeJournal"
+    type  = "SQLAzure"
+    value = "Server=tcp:${azurerm_mssql_server.main.fully_qualified_domain_name},1433;Initial Catalog=${azurerm_mssql_database.main.name};User ID=${var.sql_admin_login};Password=${var.sql_admin_password};Encrypt=True;"
+  }
+
   site_config {
     always_on = false
 
