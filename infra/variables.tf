@@ -21,3 +21,13 @@ variable "managed_by" {
 variable "cost_center" {
   type = string
 }
+
+variable "sql_admin_login" {
+  type      = string
+  sensitive = true
+}
+
+variable "sql_admin_password" {
+  type      = string
+  sensitive = true
+}

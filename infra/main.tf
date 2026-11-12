@@ -37,3 +37,37 @@ resource "azurerm_linux_web_app" "main" {
     ignore_changes = [site_config[0].application_stack]
   }
 }
+
+# Database
+resource "azurerm_mssql_server" "main" {
+  name                         = "coffee-journal-sqlserver"
+  resource_group_name          = azurerm_resource_group.main.name
+  location                     = azurerm_resource_group.main.location
+  version                      = "12.0"
+  administrator_login          = var.sql_admin_login
+  administrator_login_password = var.sql_admin_password
+  tags                         = local.tags
+}
+
+resource "azurerm_mssql_database" "main" {
+  name        = "coffee-journal-db"
+  server_id   = azurerm_mssql_server.main.id
+  collation   = "SQL_Latin1_General_CP1_CI_AS"
+  max_size_gb = 2
+  sku_name    = "Basic"
+
+  tags = local.tags
+
+  # prevent the possibility of accidental data loss
+  lifecycle {
+    prevent_destroy = true
+  }
+}
+
+# Allow Azure services (such as the web app) to reach the SQL server
+resource "azurerm_mssql_firewall_rule" "allow_azure_services" {
+  name             = "AllowAzureServices"
+  server_id        = azurerm_mssql_server.main.id
+  start_ip_address = "0.0.0.0"
+  end_ip_address   = "0.0.0.0"
+}
