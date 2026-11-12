@@ -19,6 +19,8 @@ builder.Services.AddScoped<ICoffeeSuplierUseCase, CoffeeSuplierUseCase>();
 
 var app = builder.Build();
 
+app.Services.ApplyMigrations();
+
 app.MapOpenApi();
 app.MapScalarApiReference();
 

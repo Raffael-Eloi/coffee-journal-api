@@ -19,4 +19,13 @@ public static class DependencyInjection
 
         return services;
     }
+
+    public static void ApplyMigrations(this IServiceProvider serviceProvider)
+    {
+        using IServiceScope scope = serviceProvider.CreateScope();
+        scope.ServiceProvider
+            .GetRequiredService<CoffeeJournalDbContext>()
+            .Database
+            .Migrate();
+    }
 }
