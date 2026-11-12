@@ -65,9 +65,9 @@ resource "azurerm_mssql_database" "main" {
   tags = local.tags
 
   # prevent the possibility of accidental data loss
-  lifecycle {
-    prevent_destroy = true
-  }
+#   lifecycle {
+#     prevent_destroy = true
+#   }
 }
 
 # Allow Azure services (such as the web app) to reach the SQL server
