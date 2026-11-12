@@ -28,7 +28,7 @@ resource "azurerm_linux_web_app" "main" {
     always_on = false
 
     application_stack {
-      docker_image_name   = var.docker_image_name
+      docker_image_name   = "nginxinc/nginx-unprivileged:latest"
       docker_registry_url = "https://index.docker.io"
     }
   }

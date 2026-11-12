@@ -21,7 +21,3 @@ variable "managed_by" {
 variable "cost_center" {
   type = string
 }
-
-variable "docker_image_name" {
-  type = string
-}

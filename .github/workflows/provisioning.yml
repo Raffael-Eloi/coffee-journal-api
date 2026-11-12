@@ -53,8 +53,6 @@ jobs:
           subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
       - name: Terraform plan
-        env:
-          TF_VAR_docker_image_name: ${{ vars.DOCKERHUB_USERNAME }}/coffee-journal-api:latest
         run: |
           cd infra
           terraform init -backend-config="azurerm-config-production.tfbackend"
