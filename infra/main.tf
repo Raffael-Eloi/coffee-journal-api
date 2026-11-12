@@ -61,13 +61,7 @@ resource "azurerm_mssql_database" "main" {
   collation   = "SQL_Latin1_General_CP1_CI_AS"
   max_size_gb = 2
   sku_name    = "Basic"
-
-  tags = local.tags
-
-  # prevent the possibility of accidental data loss
-#   lifecycle {
-#     prevent_destroy = true
-#   }
+  tags        = local.tags
 }
 
 # Allow Azure services (such as the web app) to reach the SQL server
