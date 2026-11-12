@@ -28,6 +28,9 @@ RUN dotnet publish -c Release -o /app/publish --no-restore /p:UseAppHost=false
 
 # Final stage
 FROM base AS final
+# SqlClient does not support Globalization Invariant Mode, so install ICU on Alpine
+RUN apk add --no-cache icu-libs
+ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=false
 WORKDIR /app
 COPY --from=publish /app/publish .
 
