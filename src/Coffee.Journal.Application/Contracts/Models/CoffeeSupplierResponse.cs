@@ -1,6 +1,6 @@
 namespace Coffee.Journal.Application.Contracts.Models;
 
-public sealed class CoffeeSupplierResponse
+public sealed class CoffeeSupplierResponse : BaseResponse
 {
     public Guid Id { get; init; }
 
