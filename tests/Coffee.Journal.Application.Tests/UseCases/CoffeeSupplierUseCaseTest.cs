@@ -7,15 +7,15 @@ using Moq;
 
 namespace Coffee.Journal.Application.Tests.UseCases;
 
-public class CoffeeSuplierUseCaseTest
+public class CoffeeSupplierUseCaseTest
 {
     private readonly Mock<ICoffeeSupplierRepository> _repositoryMock;
-    private readonly ICoffeeSuplierUseCase _useCase;
+    private readonly ICoffeeSupplierUseCase _useCase;
 
-    public CoffeeSuplierUseCaseTest()
+    public CoffeeSupplierUseCaseTest()
     {
         _repositoryMock = new Mock<ICoffeeSupplierRepository>();
-        _useCase = new CoffeeSuplierUseCase(_repositoryMock.Object);
+        _useCase = new CoffeeSupplierUseCase(_repositoryMock.Object);
     }
 
     [Fact]

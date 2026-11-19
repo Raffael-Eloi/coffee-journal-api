@@ -8,7 +8,7 @@ namespace Coffee.Journal.Infrastructure.Repositories;
 internal abstract class BaseRepository<TEntity> : IBaseRepository<TEntity>
     where TEntity : BaseEntity
 {
-    private readonly CoffeeJournalDbContext _dbContext;
+    protected readonly CoffeeJournalDbContext _dbContext;
 
     protected BaseRepository(CoffeeJournalDbContext dbContext)
     {

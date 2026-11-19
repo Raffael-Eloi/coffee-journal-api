@@ -15,7 +15,7 @@ builder.Services.AddInfrastructure(
     builder.Configuration.GetConnectionString("CoffeeJournal")
     ?? throw new InvalidOperationException("Connection string 'CoffeeJournal' not found."));
 
-builder.Services.AddScoped<ICoffeeSuplierUseCase, CoffeeSuplierUseCase>();
+builder.Services.AddScoped<ICoffeeSupplierUseCase, CoffeeSupplierUseCase>();
 
 var app = builder.Build();
 

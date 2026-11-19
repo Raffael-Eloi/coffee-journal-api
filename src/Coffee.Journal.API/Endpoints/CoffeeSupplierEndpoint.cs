@@ -14,7 +14,7 @@ public sealed class CoffeeSupplierEndpoint
             .WithTags("Coffee Suppliers");
 
         group.MapPost("", async (
-            [FromServices] ICoffeeSuplierUseCase coffeeSupplierUseCase,
+            [FromServices] ICoffeeSupplierUseCase coffeeSupplierUseCase,
             [FromServices] ILogger<CoffeeSupplierEndpoint> logger,
             [FromBody] CoffeeSupplierRequest request) =>
         {
@@ -23,12 +23,12 @@ public sealed class CoffeeSupplierEndpoint
             Guid supplierId = await coffeeSupplierUseCase.AddAsync(request);
             logger.LogInformation("Coffee supplier {supplierId} created", supplierId);
 
-            return Results.Created("/api/v1.0/coffee-supplier/{id}", new { id = supplierId });
+            return Results.Created($"/api/v1.0/coffee-suppliers/{supplierId}", new { id = supplierId });
         })
             .WithName("Add Coffee Supplier");
 
         group.MapGet("", async (
-            [FromServices] ICoffeeSuplierUseCase coffeeSupplierUseCase) =>
+            [FromServices] ICoffeeSupplierUseCase coffeeSupplierUseCase) =>
         {
             IReadOnlyList<CoffeeSupplierResponse> suppliers = await coffeeSupplierUseCase.GetAllAsync();
 
@@ -37,7 +37,7 @@ public sealed class CoffeeSupplierEndpoint
             .WithName("Get Coffee Suppliers");
 
         group.MapGet("{id:guid}", async (
-            [FromServices] ICoffeeSuplierUseCase coffeeSupplierUseCase,
+            [FromServices] ICoffeeSupplierUseCase coffeeSupplierUseCase,
             Guid id) =>
         {
             CoffeeSupplierResponse? supplier = await coffeeSupplierUseCase.GetByIdAsync(id);
@@ -47,7 +47,7 @@ public sealed class CoffeeSupplierEndpoint
             .WithName("Get Coffee Supplier By Id");
 
         group.MapPut("{id:guid}", async (
-            [FromServices] ICoffeeSuplierUseCase coffeeSupplierUseCase,
+            [FromServices] ICoffeeSupplierUseCase coffeeSupplierUseCase,
             [FromServices] ILogger<CoffeeSupplierEndpoint> logger,
             Guid id,
             [FromBody] CoffeeSupplierRequest request) =>
@@ -67,7 +67,7 @@ public sealed class CoffeeSupplierEndpoint
             .WithName("Update Coffee Supplier");
 
         group.MapDelete("{id:guid}", async (
-            [FromServices] ICoffeeSuplierUseCase coffeeSupplierUseCase,
+            [FromServices] ICoffeeSupplierUseCase coffeeSupplierUseCase,
             [FromServices] ILogger<CoffeeSupplierEndpoint> logger,
             Guid id) =>
         {

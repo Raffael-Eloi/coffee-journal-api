@@ -6,27 +6,18 @@ using Coffee.Journal.Domain.Entities;
 
 namespace Coffee.Journal.Application.UseCases;
 
-public sealed class CoffeeSuplierUseCase : ICoffeeSuplierUseCase
+public sealed class CoffeeSupplierUseCase : ICoffeeSupplierUseCase
 {
     private readonly ICoffeeSupplierRepository _repository;
 
-    public CoffeeSuplierUseCase(ICoffeeSupplierRepository repository)
+    public CoffeeSupplierUseCase(ICoffeeSupplierRepository repository)
     {
         _repository = repository;
     }
 
     public async Task<Guid> AddAsync(CoffeeSupplierRequest request)
     {
-        CoffeeSupplier supplier = new()
-        {
-            Name = request.Name,
-            Website = request.Website,
-            Recommend = request.Recommend.GetValueOrDefault(),
-            HasMembershipOption = request.HasMembershipOption.GetValueOrDefault(),
-            Rate = request.Rate,
-            Review = request.Review,
-            LogoUrl = request.LogoUrl,
-        };
+        CoffeeSupplier supplier = request.ToEntity();
 
         return await _repository.AddAsync(supplier);
     }
@@ -54,13 +45,7 @@ public sealed class CoffeeSuplierUseCase : ICoffeeSuplierUseCase
             return false;
         }
 
-        supplier.Name = request.Name;
-        supplier.Website = request.Website;
-        supplier.Recommend = request.Recommend.GetValueOrDefault();
-        supplier.HasMembershipOption = request.HasMembershipOption.GetValueOrDefault();
-        supplier.Rate = request.Rate;
-        supplier.Review = request.Review;
-        supplier.LogoUrl = request.LogoUrl;
+        request.ApplyTo(supplier);
 
         await _repository.UpdateAsync(supplier);
 
