@@ -35,7 +35,7 @@ internal abstract class BaseRepository<TEntity> : IBaseRepository<TEntity>
             .ToListAsync();
     }
 
-    public async Task<TEntity?> GetByIdAsync(Guid id)
+    public virtual async Task<TEntity?> GetByIdAsync(Guid id)
     {
         return await _dbContext.Set<TEntity>().FirstOrDefaultAsync(x => x.Id == id);
     }
