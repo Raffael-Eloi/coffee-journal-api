@@ -20,6 +20,7 @@ builder.Services.AddInfrastructure(
 
 builder.Services.AddScoped<ICoffeeSupplierUseCase, CoffeeSupplierUseCase>();
 builder.Services.AddScoped<ICoffeeShopUseCase, CoffeeShopUseCase>();
+builder.Services.AddScoped<ICoffeeUseCase, CoffeeUseCase>();
 
 var app = builder.Build();
 
@@ -34,5 +35,6 @@ app.UseHttpsRedirection();
 
 CoffeeSupplierEndpoint.Map(app);
 CoffeeShopEndpoint.Map(app);
+CoffeeEndpoint.Map(app);
 
 app.Run();

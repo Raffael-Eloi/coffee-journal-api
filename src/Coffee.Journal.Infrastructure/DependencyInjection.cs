@@ -17,6 +17,7 @@ public static class DependencyInjection
 
         services.AddScoped<ICoffeeSupplierRepository, CoffeeSupplierRepository>();
         services.AddScoped<ICoffeeShopRepository, CoffeeShopRepository>();
+        services.AddScoped<ICoffeeRepository, CoffeeRepository>();
 
         return services;
     }

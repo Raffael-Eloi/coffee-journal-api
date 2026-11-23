@@ -16,6 +16,12 @@ internal sealed class CoffeeJournalDbContext : DbContext
 
     public DbSet<CoffeeShopImage> CoffeeShopImages { get; set; }
 
+    public DbSet<Domain.Entities.Coffee> Coffees { get; set; }
+
+    public DbSet<CoffeePrice> CoffeePrices { get; set; }
+
+    public DbSet<CoffeeImage> CoffeeImages { get; set; }
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(CoffeeJournalDbContext).Assembly);
