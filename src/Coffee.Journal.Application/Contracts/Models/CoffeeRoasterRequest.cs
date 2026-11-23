@@ -2,7 +2,7 @@
 
 namespace Coffee.Journal.Application.Contracts.Models;
 
-public sealed class CoffeeSupplierRequest : BaseRequest
+public sealed class CoffeeRoasterRequest : BaseRequest
 {
     [MaxLength(250)]
     [Required]

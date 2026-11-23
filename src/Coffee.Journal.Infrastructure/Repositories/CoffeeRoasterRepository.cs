@@ -5,15 +5,15 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Coffee.Journal.Infrastructure.Repositories;
 
-internal sealed class CoffeeSupplierRepository : BaseRepository<CoffeeSupplier>, ICoffeeSupplierRepository
+internal sealed class CoffeeRoasterRepository : BaseRepository<CoffeeRoaster>, ICoffeeRoasterRepository
 {
-    public CoffeeSupplierRepository(CoffeeJournalDbContext dbContext) : base(dbContext)
+    public CoffeeRoasterRepository(CoffeeJournalDbContext dbContext) : base(dbContext)
     {
     }
 
-    public override async Task<IReadOnlyList<CoffeeSupplier>> GetAllAsync()
+    public override async Task<IReadOnlyList<CoffeeRoaster>> GetAllAsync()
     {
-        return await _dbContext.Set<CoffeeSupplier>()
+        return await _dbContext.Set<CoffeeRoaster>()
             .AsNoTracking()
             .OrderBy(x => x.Name)
             .ToListAsync();

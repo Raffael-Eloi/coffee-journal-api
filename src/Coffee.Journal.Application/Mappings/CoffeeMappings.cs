@@ -11,7 +11,7 @@ internal static class CoffeeMappings
         {
             Name = request.Name,
             Description = request.Description,
-            SupplierId = request.SupplierId.GetValueOrDefault(),
+            RoasterId = request.RoasterId.GetValueOrDefault(),
             Rate = request.Rate,
             Review = request.Review,
             Recommend = request.Recommend.GetValueOrDefault(),
@@ -32,7 +32,7 @@ internal static class CoffeeMappings
     {
         coffee.Name = request.Name;
         coffee.Description = request.Description;
-        coffee.SupplierId = request.SupplierId.GetValueOrDefault();
+        coffee.RoasterId = request.RoasterId.GetValueOrDefault();
         coffee.Rate = request.Rate;
         coffee.Review = request.Review;
         coffee.Recommend = request.Recommend.GetValueOrDefault();
@@ -57,7 +57,7 @@ internal static class CoffeeMappings
             Id = coffee.Id,
             Name = coffee.Name,
             Description = coffee.Description,
-            SupplierId = coffee.SupplierId,
+            RoasterId = coffee.RoasterId,
             Rate = coffee.Rate,
             Review = coffee.Review,
             Recommend = coffee.Recommend,

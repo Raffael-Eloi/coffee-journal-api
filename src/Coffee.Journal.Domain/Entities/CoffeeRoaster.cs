@@ -1,6 +1,6 @@
 ﻿namespace Coffee.Journal.Domain.Entities;
 
-public sealed class CoffeeSupplier : BaseEntity
+public sealed class CoffeeRoaster : BaseEntity
 {
     public required string Name { get; set; }
 

@@ -8,7 +8,7 @@ public sealed class CoffeeResponse : BaseResponse
 
     public string Description { get; init; } = string.Empty;
 
-    public Guid SupplierId { get; init; }
+    public Guid RoasterId { get; init; }
 
     public int Rate { get; init; }
 

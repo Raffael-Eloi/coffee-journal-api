@@ -11,27 +11,27 @@ namespace Coffee.Journal.Application.Tests.UseCases;
 public class CoffeeShopUseCaseTest
 {
     private readonly Mock<ICoffeeShopRepository> _repositoryMock;
-    private readonly Mock<ICoffeeSupplierRepository> _supplierRepositoryMock;
+    private readonly Mock<ICoffeeRoasterRepository> _roasterRepositoryMock;
     private readonly ICoffeeShopUseCase _useCase;
 
     public CoffeeShopUseCaseTest()
     {
         _repositoryMock = new Mock<ICoffeeShopRepository>();
-        _supplierRepositoryMock = new Mock<ICoffeeSupplierRepository>();
-        _useCase = new CoffeeShopUseCase(_repositoryMock.Object, _supplierRepositoryMock.Object);
+        _roasterRepositoryMock = new Mock<ICoffeeRoasterRepository>();
+        _useCase = new CoffeeShopUseCase(_repositoryMock.Object, _roasterRepositoryMock.Object);
     }
 
     [Fact]
-    public async Task GivenCoffeeShopWithSupplier_WhenAdd_ThenTheCoffeeShopShouldBeAdded()
+    public async Task GivenCoffeeShopWithRoaster_WhenAdd_ThenTheCoffeeShopShouldBeAdded()
     {
         #region Arrange
 
-        CoffeeSupplier supplier = CreateSupplier();
-        CoffeeShopRequest request = CreateRequest(supplier.Id);
+        CoffeeRoaster roaster = CreateRoaster();
+        CoffeeShopRequest request = CreateRequest(roaster.Id);
 
-        _supplierRepositoryMock
-            .Setup(repo => repo.GetByIdAsync(supplier.Id))
-            .ReturnsAsync(supplier);
+        _roasterRepositoryMock
+            .Setup(repo => repo.GetByIdAsync(roaster.Id))
+            .ReturnsAsync(roaster);
 
         #endregion
 
@@ -47,7 +47,7 @@ public class CoffeeShopUseCaseTest
             .Verify(repo => repo.AddAsync(It.Is<CoffeeShop>(x =>
                 x.Name == request.Name &&
                 x.Website == request.Website &&
-                x.CoffeeSupplierId == supplier.Id &&
+                x.CoffeeRoasterId == roaster.Id &&
                 x.Rate == request.Rate &&
                 x.Review == request.Review &&
                 x.Recommend == request.Recommend &&
@@ -63,11 +63,11 @@ public class CoffeeShopUseCaseTest
     }
 
     [Fact]
-    public async Task GivenCoffeeShopWithoutSupplier_WhenAdd_ThenTheSupplierShouldNotBeChecked()
+    public async Task GivenCoffeeShopWithoutRoaster_WhenAdd_ThenTheRoasterShouldNotBeChecked()
     {
         #region Arrange
 
-        CoffeeShopRequest request = CreateRequest(supplierId: null);
+        CoffeeShopRequest request = CreateRequest(roasterId: null);
 
         #endregion
 
@@ -79,25 +79,25 @@ public class CoffeeShopUseCaseTest
 
         #region Assert
 
-        _supplierRepositoryMock
+        _roasterRepositoryMock
             .Verify(repo => repo.GetByIdAsync(It.IsAny<Guid>()), Times.Never());
 
         _repositoryMock
-            .Verify(repo => repo.AddAsync(It.Is<CoffeeShop>(x => x.CoffeeSupplierId == null)), Times.Once());
+            .Verify(repo => repo.AddAsync(It.Is<CoffeeShop>(x => x.CoffeeRoasterId == null)), Times.Once());
 
         #endregion
     }
 
     [Fact]
-    public async Task GivenNonExistingSupplier_WhenAdd_ThenAValidationExceptionShouldBeThrownAndNothingShouldBeAdded()
+    public async Task GivenNonExistingRoaster_WhenAdd_ThenAValidationExceptionShouldBeThrownAndNothingShouldBeAdded()
     {
         #region Arrange
 
         CoffeeShopRequest request = CreateRequest(Guid.NewGuid());
 
-        _supplierRepositoryMock
+        _roasterRepositoryMock
             .Setup(repo => repo.GetByIdAsync(It.IsAny<Guid>()))
-            .ReturnsAsync((CoffeeSupplier?)null);
+            .ReturnsAsync((CoffeeRoaster?)null);
 
         #endregion
 
@@ -110,7 +110,7 @@ public class CoffeeShopUseCaseTest
 
         #region Assert
 
-        Assert.True(exception.Errors.ContainsKey("coffeeSupplierId"));
+        Assert.True(exception.Errors.ContainsKey("coffeeRoasterId"));
 
         _repositoryMock
             .Verify(repo => repo.AddAsync(It.IsAny<CoffeeShop>()), Times.Never());
@@ -177,7 +177,7 @@ public class CoffeeShopUseCaseTest
         Assert.Equal(shop.Id, response.Id);
         Assert.Equal(shop.Name, response.Name);
         Assert.Equal(shop.Website, response.Website);
-        Assert.Equal(shop.CoffeeSupplierId, response.CoffeeSupplierId);
+        Assert.Equal(shop.CoffeeRoasterId, response.CoffeeRoasterId);
         Assert.Equal(shop.Rate, response.Rate);
         Assert.Equal(shop.Review, response.Review);
         Assert.Equal(shop.Recommend, response.Recommend);
@@ -225,7 +225,7 @@ public class CoffeeShopUseCaseTest
         {
             Name = "Unique Coffee Updated",
             Website = "https://updated.com.br",
-            CoffeeSupplierId = null,
+            CoffeeRoasterId = null,
             Rate = 3,
             Review = "Updated review",
             Recommend = false,
@@ -257,7 +257,7 @@ public class CoffeeShopUseCaseTest
                 x.Id == shop.Id &&
                 x.Name == request.Name &&
                 x.Website == request.Website &&
-                x.CoffeeSupplierId == request.CoffeeSupplierId &&
+                x.CoffeeRoasterId == request.CoffeeRoasterId &&
                 x.Rate == request.Rate &&
                 x.Review == request.Review &&
                 x.Recommend == request.Recommend &&
@@ -285,7 +285,7 @@ public class CoffeeShopUseCaseTest
 
         #region Act
 
-        bool updated = await _useCase.UpdateAsync(Guid.NewGuid(), CreateRequest(supplierId: null));
+        bool updated = await _useCase.UpdateAsync(Guid.NewGuid(), CreateRequest(roasterId: null));
 
         #endregion
 
@@ -300,7 +300,7 @@ public class CoffeeShopUseCaseTest
     }
 
     [Fact]
-    public async Task GivenNonExistingSupplier_WhenUpdate_ThenAValidationExceptionShouldBeThrownAndNothingShouldBeUpdated()
+    public async Task GivenNonExistingRoaster_WhenUpdate_ThenAValidationExceptionShouldBeThrownAndNothingShouldBeUpdated()
     {
         #region Arrange
 
@@ -310,9 +310,9 @@ public class CoffeeShopUseCaseTest
             .Setup(repo => repo.GetByIdAsync(shop.Id))
             .ReturnsAsync(shop);
 
-        _supplierRepositoryMock
+        _roasterRepositoryMock
             .Setup(repo => repo.GetByIdAsync(It.IsAny<Guid>()))
-            .ReturnsAsync((CoffeeSupplier?)null);
+            .ReturnsAsync((CoffeeRoaster?)null);
 
         #endregion
 
@@ -325,7 +325,7 @@ public class CoffeeShopUseCaseTest
 
         #region Assert
 
-        Assert.True(exception.Errors.ContainsKey("coffeeSupplierId"));
+        Assert.True(exception.Errors.ContainsKey("coffeeRoasterId"));
 
         _repositoryMock
             .Verify(repo => repo.UpdateAsync(It.IsAny<CoffeeShop>()), Times.Never());
@@ -364,25 +364,25 @@ public class CoffeeShopUseCaseTest
         #endregion
     }
 
-    private static CoffeeSupplier CreateSupplier()
+    private static CoffeeRoaster CreateRoaster()
     {
-        return new CoffeeSupplier
+        return new CoffeeRoaster
         {
             Name = "Unique Cafés",
             Rate = 5,
-            Review = "The best coffee supplier",
+            Review = "The best coffee roaster",
             Recommend = true,
             HasMembershipOption = true,
         };
     }
 
-    private static CoffeeShopRequest CreateRequest(Guid? supplierId)
+    private static CoffeeShopRequest CreateRequest(Guid? roasterId)
     {
         return new CoffeeShopRequest
         {
             Name = "Unique Coffee",
             Website = "https://uniquecoffee.com.br",
-            CoffeeSupplierId = supplierId,
+            CoffeeRoasterId = roasterId,
             Rate = 5,
             Review = "The best coffee shop",
             Recommend = true,
@@ -400,7 +400,7 @@ public class CoffeeShopUseCaseTest
         {
             Name = name,
             Website = "https://uniquecoffee.com.br",
-            CoffeeSupplierId = Guid.NewGuid(),
+            CoffeeRoasterId = Guid.NewGuid(),
             Rate = 5,
             Review = "The best coffee shop",
             Recommend = true,

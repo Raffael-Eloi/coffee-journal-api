@@ -2,6 +2,6 @@
 
 namespace Coffee.Journal.Application.Contracts.UseCases;
 
-public interface ICoffeeSupplierUseCase : IBaseUseCase<CoffeeSupplierRequest, CoffeeSupplierResponse>
+public interface ICoffeeRoasterUseCase : IBaseUseCase<CoffeeRoasterRequest, CoffeeRoasterResponse>
 {
 }

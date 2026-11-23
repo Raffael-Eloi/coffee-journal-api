@@ -10,7 +10,7 @@ internal sealed class CoffeeJournalDbContext : DbContext
     {
     }
 
-    public DbSet<CoffeeSupplier> CoffeeSuppliers { get; set; }
+    public DbSet<CoffeeRoaster> CoffeeRoasters { get; set; }
 
     public DbSet<CoffeeShop> CoffeeShops { get; set; }
 

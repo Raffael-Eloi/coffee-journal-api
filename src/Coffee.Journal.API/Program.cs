@@ -18,7 +18,7 @@ builder.Services.AddInfrastructure(
     builder.Configuration.GetConnectionString("CoffeeJournal")
     ?? throw new InvalidOperationException("Connection string 'CoffeeJournal' not found."));
 
-builder.Services.AddScoped<ICoffeeSupplierUseCase, CoffeeSupplierUseCase>();
+builder.Services.AddScoped<ICoffeeRoasterUseCase, CoffeeRoasterUseCase>();
 builder.Services.AddScoped<ICoffeeShopUseCase, CoffeeShopUseCase>();
 builder.Services.AddScoped<ICoffeeUseCase, CoffeeUseCase>();
 
@@ -33,7 +33,7 @@ app.MapScalarApiReference();
 
 app.UseHttpsRedirection();
 
-CoffeeSupplierEndpoint.Map(app);
+CoffeeRoasterEndpoint.Map(app);
 CoffeeShopEndpoint.Map(app);
 CoffeeEndpoint.Map(app);
 

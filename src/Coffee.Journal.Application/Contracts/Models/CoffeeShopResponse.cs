@@ -8,7 +8,7 @@ public sealed class CoffeeShopResponse : BaseResponse
 
     public string? Website { get; init; }
 
-    public Guid? CoffeeSupplierId { get; init; }
+    public Guid? CoffeeRoasterId { get; init; }
 
     public int Rate { get; init; }
 

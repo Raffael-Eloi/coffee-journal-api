@@ -66,9 +66,9 @@ internal sealed class CoffeeShopConfiguration : IEntityTypeConfiguration<CoffeeS
             .IsRequired();
 
         builder
-            .HasOne<CoffeeSupplier>()
+            .HasOne<CoffeeRoaster>()
             .WithMany()
-            .HasForeignKey(x => x.CoffeeSupplierId)
+            .HasForeignKey(x => x.CoffeeRoasterId)
             .IsRequired(false)
             .OnDelete(DeleteBehavior.SetNull);
 

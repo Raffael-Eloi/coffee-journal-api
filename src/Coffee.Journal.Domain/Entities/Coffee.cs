@@ -6,7 +6,7 @@ public sealed class Coffee : BaseEntity
 
     public required string Description { get; set; }
 
-    public required Guid SupplierId { get; set; }
+    public required Guid RoasterId { get; set; }
 
     public required int Rate { get; set; }
 

@@ -10,19 +10,19 @@ namespace Coffee.Journal.Application.UseCases;
 public sealed class CoffeeShopUseCase : ICoffeeShopUseCase
 {
     private readonly ICoffeeShopRepository _repository;
-    private readonly ICoffeeSupplierRepository _supplierRepository;
+    private readonly ICoffeeRoasterRepository _roasterRepository;
 
     public CoffeeShopUseCase(
         ICoffeeShopRepository repository,
-        ICoffeeSupplierRepository supplierRepository)
+        ICoffeeRoasterRepository roasterRepository)
     {
         _repository = repository;
-        _supplierRepository = supplierRepository;
+        _roasterRepository = roasterRepository;
     }
 
     public async Task<Guid> AddAsync(CoffeeShopRequest request)
     {
-        await EnsureSupplierExistsAsync(request.CoffeeSupplierId);
+        await EnsureRoasterExistsAsync(request.CoffeeRoasterId);
 
         CoffeeShop shop = request.ToEntity();
 
@@ -52,7 +52,7 @@ public sealed class CoffeeShopUseCase : ICoffeeShopUseCase
             return false;
         }
 
-        await EnsureSupplierExistsAsync(request.CoffeeSupplierId);
+        await EnsureRoasterExistsAsync(request.CoffeeRoasterId);
 
         request.ApplyTo(shop);
 
@@ -66,20 +66,20 @@ public sealed class CoffeeShopUseCase : ICoffeeShopUseCase
         return await _repository.DeleteAsync(id);
     }
 
-    private async Task EnsureSupplierExistsAsync(Guid? supplierId)
+    private async Task EnsureRoasterExistsAsync(Guid? roasterId)
     {
-        if (supplierId is null)
+        if (roasterId is null)
         {
             return;
         }
 
-        CoffeeSupplier? supplier = await _supplierRepository.GetByIdAsync(supplierId.Value);
+        CoffeeRoaster? roaster = await _roasterRepository.GetByIdAsync(roasterId.Value);
 
-        if (supplier is null)
+        if (roaster is null)
         {
             throw new RequestValidationException(
-                "coffeeSupplierId",
-                $"Coffee supplier '{supplierId}' does not exist.");
+                "coffeeRoasterId",
+                $"Coffee roaster '{roasterId}' does not exist.");
         }
     }
 }

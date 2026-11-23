@@ -72,9 +72,9 @@ internal sealed class CoffeeConfiguration : IEntityTypeConfiguration<Domain.Enti
             .IsRequired();
 
         builder
-            .HasOne<CoffeeSupplier>()
+            .HasOne<CoffeeRoaster>()
             .WithMany()
-            .HasForeignKey(x => x.SupplierId)
+            .HasForeignKey(x => x.RoasterId)
             .IsRequired()
             .OnDelete(DeleteBehavior.Restrict);
 
@@ -93,9 +93,9 @@ internal sealed class CoffeeConfiguration : IEntityTypeConfiguration<Domain.Enti
             .OnDelete(DeleteBehavior.Cascade);
 
         builder
-            .HasIndex(x => new { x.SupplierId, x.Name })
+            .HasIndex(x => new { x.RoasterId, x.Name })
             .IsUnique()
-            .HasDatabaseName("UX_Coffees_SupplierId_Name");
+            .HasDatabaseName("UX_Coffees_RoasterId_Name");
 
         builder
             .ToTable("Coffees", t => t.HasCheckConstraint("CK_Coffees_Rate", "[Rate] BETWEEN 1 AND 5"));

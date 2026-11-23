@@ -14,7 +14,7 @@ public sealed class CoffeeShopRequest : BaseRequest, IValidatableObject
     [Url]
     public string? Website { get; init; }
 
-    public Guid? CoffeeSupplierId { get; init; }
+    public Guid? CoffeeRoasterId { get; init; }
 
     [Range(1, 5)]
     public int Rate { get; init; }

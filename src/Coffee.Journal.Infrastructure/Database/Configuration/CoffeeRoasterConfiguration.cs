@@ -4,9 +4,9 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Coffee.Journal.Infrastructure.Database.Configuration;
 
-internal sealed class CoffeeSupplierConfiguration : IEntityTypeConfiguration<CoffeeSupplier>
+internal sealed class CoffeeRoasterConfiguration : IEntityTypeConfiguration<CoffeeRoaster>
 {
-    public void Configure(EntityTypeBuilder<CoffeeSupplier> builder)
+    public void Configure(EntityTypeBuilder<CoffeeRoaster> builder)
     {
         builder
             .HasKey(x => x.Id);
@@ -52,9 +52,9 @@ internal sealed class CoffeeSupplierConfiguration : IEntityTypeConfiguration<Cof
         builder
             .HasIndex(x => x.Name)
             .IsUnique()
-            .HasDatabaseName("UX_CoffeeSuppliers_Name"); ;
+            .HasDatabaseName("UX_CoffeeRoasters_Name"); ;
 
         builder
-            .ToTable("CoffeeSuppliers", t => t.HasCheckConstraint("CK_CoffeeSuppliers_Rate", "[Rate] BETWEEN 1 AND 5"));
+            .ToTable("CoffeeRoasters", t => t.HasCheckConstraint("CK_CoffeeRoasters_Rate", "[Rate] BETWEEN 1 AND 5"));
     }
 }

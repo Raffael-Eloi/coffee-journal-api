@@ -15,7 +15,7 @@ public sealed class CoffeeRequest : BaseRequest, IValidatableObject
     public string Description { get; init; } = string.Empty;
 
     [Required]
-    public Guid? SupplierId { get; init; }
+    public Guid? RoasterId { get; init; }
 
     [Range(1, 5)]
     public int Rate { get; init; }

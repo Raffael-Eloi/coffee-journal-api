@@ -2,6 +2,6 @@
 
 namespace Coffee.Journal.Domain.Contracts.Repositories;
 
-public interface ICoffeeSupplierRepository : IBaseRepository<CoffeeSupplier>
+public interface ICoffeeRoasterRepository : IBaseRepository<CoffeeRoaster>
 {
 }

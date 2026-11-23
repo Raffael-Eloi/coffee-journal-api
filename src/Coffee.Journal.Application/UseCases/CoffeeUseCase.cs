@@ -10,19 +10,19 @@ namespace Coffee.Journal.Application.UseCases;
 public sealed class CoffeeUseCase : ICoffeeUseCase
 {
     private readonly ICoffeeRepository _repository;
-    private readonly ICoffeeSupplierRepository _supplierRepository;
+    private readonly ICoffeeRoasterRepository _roasterRepository;
 
     public CoffeeUseCase(
         ICoffeeRepository repository,
-        ICoffeeSupplierRepository supplierRepository)
+        ICoffeeRoasterRepository roasterRepository)
     {
         _repository = repository;
-        _supplierRepository = supplierRepository;
+        _roasterRepository = roasterRepository;
     }
 
     public async Task<Guid> AddAsync(CoffeeRequest request)
     {
-        await EnsureSupplierExistsAsync(request.SupplierId.GetValueOrDefault());
+        await EnsureRoasterExistsAsync(request.RoasterId.GetValueOrDefault());
 
         Domain.Entities.Coffee coffee = request.ToEntity();
 
@@ -52,7 +52,7 @@ public sealed class CoffeeUseCase : ICoffeeUseCase
             return false;
         }
 
-        await EnsureSupplierExistsAsync(request.SupplierId.GetValueOrDefault());
+        await EnsureRoasterExistsAsync(request.RoasterId.GetValueOrDefault());
 
         request.ApplyTo(coffee);
 
@@ -66,15 +66,15 @@ public sealed class CoffeeUseCase : ICoffeeUseCase
         return await _repository.DeleteAsync(id);
     }
 
-    private async Task EnsureSupplierExistsAsync(Guid supplierId)
+    private async Task EnsureRoasterExistsAsync(Guid roasterId)
     {
-        CoffeeSupplier? supplier = await _supplierRepository.GetByIdAsync(supplierId);
+        CoffeeRoaster? roaster = await _roasterRepository.GetByIdAsync(roasterId);
 
-        if (supplier is null)
+        if (roaster is null)
         {
             throw new RequestValidationException(
-                "supplierId",
-                $"Coffee supplier '{supplierId}' does not exist.");
+                "roasterId",
+                $"Coffee roaster '{roasterId}' does not exist.");
         }
     }
 }
