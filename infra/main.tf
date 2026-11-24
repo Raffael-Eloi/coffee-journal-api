@@ -21,7 +21,9 @@ resource "azurerm_linux_web_app" "main" {
   tags                = local.tags
 
   app_settings = {
-    WEBSITES_PORT = "8080"
+    WEBSITES_PORT                   = "8080"
+    "BlobStorage__ConnectionString" = azurerm_storage_account.main.primary_connection_string
+    "BlobStorage__ContainerName"    = azurerm_storage_container.main.name
   }
 
   connection_string {
@@ -76,4 +78,22 @@ resource "azurerm_mssql_firewall_rule" "allow_azure_services" {
   server_id        = azurerm_mssql_server.main.id
   start_ip_address = "0.0.0.0"
   end_ip_address   = "0.0.0.0"
+}
+
+# Azure blob storage
+
+resource "azurerm_storage_account" "main" {
+  name                            = "stcoffeejournal${var.environment_name}"
+  resource_group_name             = azurerm_resource_group.main.name
+  location                        = azurerm_resource_group.main.location
+  account_tier                    = "Standard"
+  account_replication_type        = "LRS"
+  allow_nested_items_to_be_public = true
+  tags                            = local.tags
+}
+
+resource "azurerm_storage_container" "main" {
+  name                  = "content"
+  storage_account_id    = azurerm_storage_account.main.id
+  container_access_type = "blob"
 }

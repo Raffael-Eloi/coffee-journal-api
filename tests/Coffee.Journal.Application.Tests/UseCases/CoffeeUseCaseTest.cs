@@ -3,6 +3,7 @@ using Coffee.Journal.Application.Contracts.UseCases;
 using Coffee.Journal.Application.Exceptions;
 using Coffee.Journal.Application.UseCases;
 using Coffee.Journal.Domain.Contracts.Repositories;
+using Coffee.Journal.Domain.Contracts.Storage;
 using Coffee.Journal.Domain.Entities;
 using Moq;
 
@@ -12,13 +13,21 @@ public class CoffeeUseCaseTest
 {
     private readonly Mock<ICoffeeRepository> _repositoryMock;
     private readonly Mock<ICoffeeRoasterRepository> _roasterRepositoryMock;
+    private readonly Mock<IImageStorage> _imageStorageMock;
     private readonly ICoffeeUseCase _useCase;
 
     public CoffeeUseCaseTest()
     {
         _repositoryMock = new Mock<ICoffeeRepository>();
         _roasterRepositoryMock = new Mock<ICoffeeRoasterRepository>();
-        _useCase = new CoffeeUseCase(_repositoryMock.Object, _roasterRepositoryMock.Object);
+        _imageStorageMock = new Mock<IImageStorage>();
+        _imageStorageMock
+            .Setup(storage => storage.IsStorageUrl(It.IsAny<string>()))
+            .Returns(true);
+        _useCase = new CoffeeUseCase(
+            _repositoryMock.Object,
+            _roasterRepositoryMock.Object,
+            _imageStorageMock.Object);
     }
 
     [Fact]
@@ -270,6 +279,11 @@ public class CoffeeUseCaseTest
                 x.Images.All(image => image.CoffeeId == coffee.Id))),
             Times.Once());
 
+        _imageStorageMock
+            .Verify(storage => storage.DeleteAsync("https://old-image.png", It.IsAny<CancellationToken>()), Times.Once());
+        _imageStorageMock
+            .Verify(storage => storage.DeleteAsync("https://new-image1.png", It.IsAny<CancellationToken>()), Times.Never());
+
         #endregion
     }
 
@@ -334,33 +348,102 @@ public class CoffeeUseCaseTest
         #endregion
     }
 
-    [Theory]
-    [InlineData(true)]
-    [InlineData(false)]
-    public async Task GivenCoffeeId_WhenDelete_ThenTheRepositoryResultShouldBeReturned(bool repositoryResult)
+    [Fact]
+    public async Task GivenExistingCoffee_WhenDelete_ThenTheCoffeeAndItsImagesShouldBeDeleted()
     {
         #region Arrange
 
-        Guid id = Guid.NewGuid();
+        Domain.Entities.Coffee coffee = CreateCoffee("Unique Coffee", [], ["https://image1.png", "https://image2.png"]);
 
         _repositoryMock
-            .Setup(repo => repo.DeleteAsync(id))
-            .ReturnsAsync(repositoryResult);
+            .Setup(repo => repo.GetByIdAsync(coffee.Id))
+            .ReturnsAsync(coffee);
+
+        _repositoryMock
+            .Setup(repo => repo.DeleteAsync(coffee.Id))
+            .ReturnsAsync(true);
 
         #endregion
 
         #region Act
 
-        bool deleted = await _useCase.DeleteAsync(id);
+        bool deleted = await _useCase.DeleteAsync(coffee.Id);
 
         #endregion
 
         #region Assert
 
-        Assert.Equal(repositoryResult, deleted);
+        Assert.True(deleted);
 
         _repositoryMock
-            .Verify(repo => repo.DeleteAsync(id), Times.Once());
+            .Verify(repo => repo.DeleteAsync(coffee.Id), Times.Once());
+        _imageStorageMock
+            .Verify(storage => storage.DeleteAsync("https://image1.png", It.IsAny<CancellationToken>()), Times.Once());
+        _imageStorageMock
+            .Verify(storage => storage.DeleteAsync("https://image2.png", It.IsAny<CancellationToken>()), Times.Once());
+
+        #endregion
+    }
+
+    [Fact]
+    public async Task GivenNonExistingCoffee_WhenDelete_ThenFalseShouldBeReturnedAndNothingShouldBeDeleted()
+    {
+        #region Arrange
+
+        _repositoryMock
+            .Setup(repo => repo.GetByIdAsync(It.IsAny<Guid>()))
+            .ReturnsAsync((Domain.Entities.Coffee?)null);
+
+        #endregion
+
+        #region Act
+
+        bool deleted = await _useCase.DeleteAsync(Guid.NewGuid());
+
+        #endregion
+
+        #region Assert
+
+        Assert.False(deleted);
+
+        _repositoryMock
+            .Verify(repo => repo.DeleteAsync(It.IsAny<Guid>()), Times.Never());
+        _imageStorageMock
+            .Verify(storage => storage.DeleteAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never());
+
+        #endregion
+    }
+
+    [Fact]
+    public async Task GivenImageUrlFromOutsideTheStorage_WhenAdd_ThenAValidationExceptionShouldBeThrownAndNothingShouldBeAdded()
+    {
+        #region Arrange
+
+        CoffeeRoaster roaster = CreateRoaster();
+
+        _roasterRepositoryMock
+            .Setup(repo => repo.GetByIdAsync(roaster.Id))
+            .ReturnsAsync(roaster);
+
+        _imageStorageMock
+            .Setup(storage => storage.IsStorageUrl("https://image2.png"))
+            .Returns(false);
+
+        #endregion
+
+        #region Act
+
+        RequestValidationException exception = await Assert.ThrowsAsync<RequestValidationException>(
+            () => _useCase.AddAsync(CreateRequest(roaster.Id)));
+
+        #endregion
+
+        #region Assert
+
+        Assert.True(exception.Errors.ContainsKey("imageUrls"));
+
+        _repositoryMock
+            .Verify(repo => repo.AddAsync(It.IsAny<Domain.Entities.Coffee>()), Times.Never());
 
         #endregion
     }

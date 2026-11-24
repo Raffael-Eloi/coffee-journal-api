@@ -3,6 +3,7 @@ using Coffee.Journal.API.ExceptionHandlers;
 using Coffee.Journal.Application.Contracts.UseCases;
 using Coffee.Journal.Application.UseCases;
 using Coffee.Journal.Infrastructure;
+using Coffee.Journal.Infrastructure.Storage;
 using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -36,13 +37,26 @@ builder.Services.AddOpenApi();
 builder.Services.AddExceptionHandler<RequestValidationExceptionHandler>();
 builder.Services.AddProblemDetails();
 
+BlobStorageOptions blobStorageOptions = builder.Configuration
+    .GetSection(BlobStorageOptions.SectionName)
+    .Get<BlobStorageOptions>()
+    ?? new BlobStorageOptions();
+if (string.IsNullOrWhiteSpace(blobStorageOptions.ConnectionString)
+    || string.IsNullOrWhiteSpace(blobStorageOptions.ContainerName))
+{
+    throw new InvalidOperationException(
+        $"Configuration '{BlobStorageOptions.SectionName}' must contain 'ConnectionString' and 'ContainerName'.");
+}
+
 builder.Services.AddInfrastructure(
     builder.Configuration.GetConnectionString("CoffeeJournal")
-    ?? throw new InvalidOperationException("Connection string 'CoffeeJournal' not found."));
+    ?? throw new InvalidOperationException("Connection string 'CoffeeJournal' not found."),
+    blobStorageOptions);
 
 builder.Services.AddScoped<ICoffeeRoasterUseCase, CoffeeRoasterUseCase>();
 builder.Services.AddScoped<ICoffeeShopUseCase, CoffeeShopUseCase>();
 builder.Services.AddScoped<ICoffeeUseCase, CoffeeUseCase>();
+builder.Services.AddScoped<IImageUseCase, ImageUseCase>();
 
 var app = builder.Build();
 
@@ -60,5 +74,6 @@ app.UseHttpsRedirection();
 CoffeeRoasterEndpoint.Map(app);
 CoffeeShopEndpoint.Map(app);
 CoffeeEndpoint.Map(app);
+ImageEndpoint.Map(app);
 
 app.Run();
