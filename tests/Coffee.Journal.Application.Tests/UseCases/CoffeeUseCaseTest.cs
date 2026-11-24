@@ -223,8 +223,8 @@ public class CoffeeUseCaseTest
             TastingNotes = "Chocolate",
             Prices =
             [
-                new CoffeePriceRequest { Grams = 500, Price = 75m },
-                new CoffeePriceRequest { Grams = 1000, Price = 140m },
+                new CoffeePriceRequest { Grams = 500, Price = 75m, Currency = "BRL" },
+                new CoffeePriceRequest { Grams = 1000, Price = 140m, Currency = "BRL" },
             ],
             ImageUrls = ["https://new-image1.png", "https://new-image2.png"],
         };
@@ -374,8 +374,8 @@ public class CoffeeUseCaseTest
         {
             Prices =
             [
-                new CoffeePriceRequest { Grams = 250, Price = 40m },
-                new CoffeePriceRequest { Grams = 250, Price = 45m },
+                new CoffeePriceRequest { Grams = 250, Price = 40m, Currency = "BRL" },
+                new CoffeePriceRequest { Grams = 250, Price = 45m, Currency = "BRL" },
             ],
         };
 
@@ -453,8 +453,8 @@ public class CoffeeUseCaseTest
             TastingNotes = "Caramel, nuts",
             Prices =
             [
-                new CoffeePriceRequest { Grams = 250, Price = 40m },
-                new CoffeePriceRequest { Grams = 1000, Price = 140m },
+                new CoffeePriceRequest { Grams = 250, Price = 40m, Currency = "BRL" },
+                new CoffeePriceRequest { Grams = 1000, Price = 140m, Currency = "BRL" },
             ],
             ImageUrls = ["https://image1.png", "https://image2.png"],
         };
@@ -481,7 +481,7 @@ public class CoffeeUseCaseTest
         };
 
         coffee.Prices = prices
-            .Select(x => new CoffeePrice { Grams = x.Grams, Price = x.Price, CoffeeId = coffee.Id })
+            .Select(x => new CoffeePrice { Grams = x.Grams, Price = x.Price, Currency = "BRL", CoffeeId = coffee.Id })
             .ToList();
 
         coffee.Images = imageUrls

@@ -131,6 +131,15 @@ namespace Coffee.Journal.Infrastructure.Database.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("Currency")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(3)
+                        .IsUnicode(false)
+                        .HasColumnType("char(3)")
+                        .HasDefaultValue("BRL")
+                        .IsFixedLength();
+
                     b.Property<int>("Grams")
                         .HasColumnType("int");
 

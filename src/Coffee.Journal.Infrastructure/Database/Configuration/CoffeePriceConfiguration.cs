@@ -25,6 +25,14 @@ internal sealed class CoffeePriceConfiguration : IEntityTypeConfiguration<Coffee
             .IsRequired();
 
         builder
+            .Property(x => x.Currency)
+            .HasMaxLength(3)
+            .IsFixedLength()
+            .IsUnicode(false)
+            .HasDefaultValue("BRL")
+            .IsRequired();
+
+        builder
             .Property(x => x.CreatedAt)
             .IsRequired();
 

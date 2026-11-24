@@ -6,5 +6,7 @@ public sealed class CoffeePrice : BaseEntity
 
     public required decimal Price { get; set; }
 
+    public required string Currency { get; set; }
+
     public Guid CoffeeId { get; set; }
 }

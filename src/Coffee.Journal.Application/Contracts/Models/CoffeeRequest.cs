@@ -73,6 +73,12 @@ public sealed class CoffeeRequest : BaseRequest, IValidatableObject
                         "Grams must be at least 1 and price must be between 0.01 and 99999999.99.",
                         [$"{nameof(Prices)}[{index}]"]);
                 }
+                else if (price.Currency is not { Length: 3 } || !price.Currency.All(char.IsAsciiLetterUpper))
+                {
+                    yield return new ValidationResult(
+                        "Currency must be a 3-letter ISO 4217 code in uppercase.",
+                        [$"{nameof(Prices)}[{index}]"]);
+                }
             }
 
             bool hasDuplicatedGrams = Prices

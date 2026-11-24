@@ -68,7 +68,7 @@ internal static class CoffeeMappings
             TastingNotes = coffee.TastingNotes,
             Prices = coffee.Prices
                 .OrderBy(x => x.Grams)
-                .Select(x => new CoffeePriceResponse { Grams = x.Grams, Price = x.Price })
+                .Select(x => new CoffeePriceResponse { Grams = x.Grams, Price = x.Price, Currency = x.Currency })
                 .ToList(),
             ImageUrls = coffee.Images.Select(x => x.Url).ToList(),
             CreatedAt = coffee.CreatedAt,
@@ -85,6 +85,7 @@ internal static class CoffeeMappings
             {
                 Grams = price.Grams,
                 Price = price.Price,
+                Currency = price.Currency,
                 CoffeeId = coffeeId,
                 CreatedAt = now,
                 UpdatedAt = now,
