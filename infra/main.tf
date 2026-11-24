@@ -93,7 +93,7 @@ resource "azurerm_storage_account" "main" {
 }
 
 resource "azurerm_storage_container" "main" {
-  name                  = "content"
+  name                  = "coffee-journal-images"
   storage_account_id    = azurerm_storage_account.main.id
   container_access_type = "blob"
 }
