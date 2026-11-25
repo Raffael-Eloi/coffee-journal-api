@@ -42,7 +42,7 @@ resource "azurerm_linux_web_app" "main" {
   }
 
   lifecycle {
-    ignore_changes = [site_config[0].application_stack]
+    ignore_changes = [site_config[0].application_stack, app_settings]
   }
 }
 
