@@ -94,6 +94,168 @@ namespace Coffee.Journal.Infrastructure.Database.Migrations
                         });
                 });
 
+            modelBuilder.Entity("Coffee.Journal.Domain.Entities.CoffeeEquipment", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Brand")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("nvarchar(250)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Currency")
+                        .HasMaxLength(3)
+                        .HasColumnType("nchar(3)")
+                        .IsFixedLength();
+
+                    b.Property<Guid>("EquipmentCategoryId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("FrequencyOfUse")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ImageUrl")
+                        .HasMaxLength(4000)
+                        .HasColumnType("nvarchar(4000)");
+
+                    b.Property<string>("Link")
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<string>("Model")
+                        .HasMaxLength(250)
+                        .HasColumnType("nvarchar(250)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(250)
+                        .HasColumnType("nvarchar(250)");
+
+                    b.Property<decimal?>("Price")
+                        .HasPrecision(10, 2)
+                        .HasColumnType("decimal(10,2)");
+
+                    b.Property<DateOnly?>("PurchaseDate")
+                        .HasColumnType("date");
+
+                    b.Property<int>("Rating")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("Recommend")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Review")
+                        .IsRequired()
+                        .HasMaxLength(4000)
+                        .HasColumnType("nvarchar(4000)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EquipmentCategoryId");
+
+                    b.ToTable("CoffeeEquipments", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_CoffeeEquipments_PriceCurrency", "([Price] IS NULL AND [Currency] IS NULL) OR ([Price] IS NOT NULL AND [Currency] IS NOT NULL)");
+
+                            t.HasCheckConstraint("CK_CoffeeEquipments_Rating", "[Rating] BETWEEN 1 AND 5");
+                        });
+                });
+
+            modelBuilder.Entity("Coffee.Journal.Domain.Entities.CoffeeEquipmentCategory", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique()
+                        .HasDatabaseName("UX_CoffeeEquipmentCategories_Name");
+
+                    b.ToTable("CoffeeEquipmentCategories", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = new Guid("a1f4c3a0-0001-4b1e-9c11-5d0a6e000001"),
+                            CreatedAt = new DateTime(2026, 11, 25, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Burr and blade grinders, manual or electric.",
+                            Name = "Grinder",
+                            UpdatedAt = new DateTime(2026, 11, 25, 0, 0, 0, 0, DateTimeKind.Utc)
+                        },
+                        new
+                        {
+                            Id = new Guid("a1f4c3a0-0002-4b1e-9c11-5d0a6e000002"),
+                            CreatedAt = new DateTime(2026, 11, 25, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Paper filters used to brew filter coffee.",
+                            Name = "PaperFilter",
+                            UpdatedAt = new DateTime(2026, 11, 25, 0, 0, 0, 0, DateTimeKind.Utc)
+                        },
+                        new
+                        {
+                            Id = new Guid("a1f4c3a0-0003-4b1e-9c11-5d0a6e000003"),
+                            CreatedAt = new DateTime(2026, 11, 25, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Scales used to weigh coffee and water.",
+                            Name = "Scale",
+                            UpdatedAt = new DateTime(2026, 11, 25, 0, 0, 0, 0, DateTimeKind.Utc)
+                        },
+                        new
+                        {
+                            Id = new Guid("a1f4c3a0-0004-4b1e-9c11-5d0a6e000004"),
+                            CreatedAt = new DateTime(2026, 11, 25, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Mugs and cups used to drink coffee.",
+                            Name = "Mug",
+                            UpdatedAt = new DateTime(2026, 11, 25, 0, 0, 0, 0, DateTimeKind.Utc)
+                        },
+                        new
+                        {
+                            Id = new Guid("a1f4c3a0-0005-4b1e-9c11-5d0a6e000005"),
+                            CreatedAt = new DateTime(2026, 11, 25, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Kettles used to heat and pour water.",
+                            Name = "Kettle",
+                            UpdatedAt = new DateTime(2026, 11, 25, 0, 0, 0, 0, DateTimeKind.Utc)
+                        },
+                        new
+                        {
+                            Id = new Guid("a1f4c3a0-0006-4b1e-9c11-5d0a6e000006"),
+                            CreatedAt = new DateTime(2026, 11, 25, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Brewing devices such as V60, AeroPress or espresso machines.",
+                            Name = "Brewer",
+                            UpdatedAt = new DateTime(2026, 11, 25, 0, 0, 0, 0, DateTimeKind.Utc)
+                        },
+                        new
+                        {
+                            Id = new Guid("a1f4c3a0-0007-4b1e-9c11-5d0a6e000007"),
+                            CreatedAt = new DateTime(2026, 11, 25, 0, 0, 0, 0, DateTimeKind.Utc),
+                            Description = "Any other coffee accessory.",
+                            Name = "Accessory",
+                            UpdatedAt = new DateTime(2026, 11, 25, 0, 0, 0, 0, DateTimeKind.Utc)
+                        });
+                });
+
             modelBuilder.Entity("Coffee.Journal.Domain.Entities.CoffeeImage", b =>
                 {
                     b.Property<Guid>("Id")
@@ -314,6 +476,15 @@ namespace Coffee.Journal.Infrastructure.Database.Migrations
                     b.HasOne("Coffee.Journal.Domain.Entities.CoffeeRoaster", null)
                         .WithMany()
                         .HasForeignKey("RoasterId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Coffee.Journal.Domain.Entities.CoffeeEquipment", b =>
+                {
+                    b.HasOne("Coffee.Journal.Domain.Entities.CoffeeEquipmentCategory", null)
+                        .WithMany()
+                        .HasForeignKey("EquipmentCategoryId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });

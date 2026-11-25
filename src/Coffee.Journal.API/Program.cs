@@ -56,6 +56,8 @@ builder.Services.AddInfrastructure(
 builder.Services.AddScoped<ICoffeeRoasterUseCase, CoffeeRoasterUseCase>();
 builder.Services.AddScoped<ICoffeeShopUseCase, CoffeeShopUseCase>();
 builder.Services.AddScoped<ICoffeeUseCase, CoffeeUseCase>();
+builder.Services.AddScoped<ICoffeeEquipmentUseCase, CoffeeEquipmentUseCase>();
+builder.Services.AddScoped<ICoffeeEquipmentCategoryUseCase, CoffeeEquipmentCategoryUseCase>();
 builder.Services.AddScoped<IImageUseCase, ImageUseCase>();
 
 var app = builder.Build();
@@ -74,6 +76,8 @@ app.UseHttpsRedirection();
 CoffeeRoasterEndpoint.Map(app);
 CoffeeShopEndpoint.Map(app);
 CoffeeEndpoint.Map(app);
+CoffeeEquipmentEndpoint.Map(app);
+CoffeeEquipmentCategoryEndpoint.Map(app);
 ImageEndpoint.Map(app);
 
 app.Run();

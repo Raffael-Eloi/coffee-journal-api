@@ -23,6 +23,8 @@ public static class DependencyInjection
         services.AddScoped<ICoffeeRoasterRepository, CoffeeRoasterRepository>();
         services.AddScoped<ICoffeeShopRepository, CoffeeShopRepository>();
         services.AddScoped<ICoffeeRepository, CoffeeRepository>();
+        services.AddScoped<ICoffeeEquipmentRepository, CoffeeEquipmentRepository>();
+        services.AddScoped<ICoffeeEquipmentCategoryRepository, CoffeeEquipmentCategoryRepository>();
 
         services.AddSingleton<IImageStorage>(serviceProvider => new AzureBlobImageStorage(
             new BlobContainerClient(blobStorageOptions.ConnectionString, blobStorageOptions.ContainerName),
