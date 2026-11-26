@@ -12,20 +12,24 @@ public sealed class CoffeeEquipmentUseCase : ICoffeeEquipmentUseCase
 {
     private readonly ICoffeeEquipmentRepository _repository;
     private readonly ICoffeeEquipmentCategoryRepository _categoryRepository;
+    private readonly IProfileRepository _profileRepository;
     private readonly IImageStorage _imageStorage;
 
     public CoffeeEquipmentUseCase(
         ICoffeeEquipmentRepository repository,
         ICoffeeEquipmentCategoryRepository categoryRepository,
+        IProfileRepository profileRepository,
         IImageStorage imageStorage)
     {
         _repository = repository;
         _categoryRepository = categoryRepository;
+        _profileRepository = profileRepository;
         _imageStorage = imageStorage;
     }
 
     public async Task<Guid> AddAsync(CoffeeEquipmentRequest request)
     {
+        await EnsureProfileExistsAsync(request.ProfileId.GetValueOrDefault());
         await EnsureCategoryExistsAsync(request.EquipmentCategoryId.GetValueOrDefault());
         EnsureImageBelongsToStorage(request);
 
@@ -100,6 +104,18 @@ public sealed class CoffeeEquipmentUseCase : ICoffeeEquipmentUseCase
             throw new RequestValidationException(
                 "imageUrl",
                 $"Image '{request.ImageUrl}' was not uploaded through the images endpoint.");
+        }
+    }
+
+    private async Task EnsureProfileExistsAsync(Guid profileId)
+    {
+        Profile? profile = await _profileRepository.GetByIdAsync(profileId);
+
+        if (profile is null)
+        {
+            throw new RequestValidationException(
+                "profileId",
+                $"Profile '{profileId}' does not exist.");
         }
     }
 

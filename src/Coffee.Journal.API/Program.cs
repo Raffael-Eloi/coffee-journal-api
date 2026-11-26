@@ -53,6 +53,7 @@ builder.Services.AddInfrastructure(
     ?? throw new InvalidOperationException("Connection string 'CoffeeJournal' not found."),
     blobStorageOptions);
 
+builder.Services.AddScoped<IProfileUseCase, ProfileUseCase>();
 builder.Services.AddScoped<ICoffeeRoasterUseCase, CoffeeRoasterUseCase>();
 builder.Services.AddScoped<ICoffeeShopUseCase, CoffeeShopUseCase>();
 builder.Services.AddScoped<ICoffeeUseCase, CoffeeUseCase>();
@@ -73,6 +74,7 @@ app.MapScalarApiReference();
 
 app.UseHttpsRedirection();
 
+ProfileEndpoint.Map(app);
 CoffeeRoasterEndpoint.Map(app);
 CoffeeShopEndpoint.Map(app);
 CoffeeEndpoint.Map(app);

@@ -20,6 +20,7 @@ public static class DependencyInjection
         services.AddDbContext<CoffeeJournalDbContext>(options =>
             options.UseSqlServer(connectionString));
 
+        services.AddScoped<IProfileRepository, ProfileRepository>();
         services.AddScoped<ICoffeeRoasterRepository, CoffeeRoasterRepository>();
         services.AddScoped<ICoffeeShopRepository, CoffeeShopRepository>();
         services.AddScoped<ICoffeeRepository, CoffeeRepository>();

@@ -16,6 +16,8 @@ public sealed class CoffeeEquipment : BaseEntity
 
     public required bool Recommend { get; set; }
 
+    public required Guid ProfileId { get; set; }
+
     public required Guid EquipmentCategoryId { get; set; }
 
     public decimal? Price { get; set; }

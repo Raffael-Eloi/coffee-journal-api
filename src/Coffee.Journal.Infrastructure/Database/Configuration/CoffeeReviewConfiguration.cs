@@ -48,6 +48,13 @@ internal sealed class CoffeeReviewConfiguration : IEntityTypeConfiguration<Coffe
             .OnDelete(DeleteBehavior.Cascade);
 
         builder
+            .HasOne<Profile>()
+            .WithMany()
+            .HasForeignKey(x => x.ProfileId)
+            .IsRequired()
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder
             .HasIndex(x => new { x.CoffeeId, x.ProfileId })
             .IsUnique()
             .HasDatabaseName("UX_CoffeeReviews_CoffeeId_ProfileId");

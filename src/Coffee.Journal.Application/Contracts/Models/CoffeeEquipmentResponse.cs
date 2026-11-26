@@ -18,6 +18,8 @@ public sealed class CoffeeEquipmentResponse : BaseResponse
 
     public bool Recommend { get; init; }
 
+    public Guid ProfileId { get; init; }
+
     public Guid EquipmentCategoryId { get; init; }
 
     public decimal? Price { get; init; }

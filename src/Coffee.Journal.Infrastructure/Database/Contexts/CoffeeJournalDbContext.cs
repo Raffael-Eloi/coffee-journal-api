@@ -10,6 +10,12 @@ internal sealed class CoffeeJournalDbContext : DbContext
     {
     }
 
+    public DbSet<Profile> Profiles { get; set; }
+
+    public DbSet<Role> Roles { get; set; }
+
+    public DbSet<ProfileRole> ProfileRoles { get; set; }
+
     public DbSet<CoffeeRoaster> CoffeeRoasters { get; set; }
 
     public DbSet<CoffeeRoasterImage> CoffeeRoasterImages { get; set; }

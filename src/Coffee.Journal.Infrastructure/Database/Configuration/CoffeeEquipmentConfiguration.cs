@@ -73,6 +73,13 @@ internal sealed class CoffeeEquipmentConfiguration : IEntityTypeConfiguration<Co
             .IsRequired();
 
         builder
+            .HasOne<Profile>()
+            .WithMany()
+            .HasForeignKey(x => x.ProfileId)
+            .IsRequired()
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder
             .HasOne<CoffeeEquipmentCategory>()
             .WithMany()
             .HasForeignKey(x => x.EquipmentCategoryId)

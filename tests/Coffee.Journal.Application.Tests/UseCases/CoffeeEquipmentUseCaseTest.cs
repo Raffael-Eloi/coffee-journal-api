@@ -15,6 +15,7 @@ public class CoffeeEquipmentUseCaseTest
 {
     private readonly Mock<ICoffeeEquipmentRepository> _repositoryMock;
     private readonly Mock<ICoffeeEquipmentCategoryRepository> _categoryRepositoryMock;
+    private readonly Mock<IProfileRepository> _profileRepositoryMock;
     private readonly Mock<IImageStorage> _imageStorageMock;
     private readonly ICoffeeEquipmentUseCase _useCase;
 
@@ -22,6 +23,10 @@ public class CoffeeEquipmentUseCaseTest
     {
         _repositoryMock = new Mock<ICoffeeEquipmentRepository>();
         _categoryRepositoryMock = new Mock<ICoffeeEquipmentCategoryRepository>();
+        _profileRepositoryMock = new Mock<IProfileRepository>();
+        _profileRepositoryMock
+            .Setup(repo => repo.GetByIdAsync(It.IsAny<Guid>()))
+            .ReturnsAsync(CreateProfile());
         _imageStorageMock = new Mock<IImageStorage>();
         _imageStorageMock
             .Setup(storage => storage.IsStorageUrl(It.IsAny<string>()))
@@ -29,6 +34,7 @@ public class CoffeeEquipmentUseCaseTest
         _useCase = new CoffeeEquipmentUseCase(
             _repositoryMock.Object,
             _categoryRepositoryMock.Object,
+            _profileRepositoryMock.Object,
             _imageStorageMock.Object);
     }
 
@@ -62,6 +68,7 @@ public class CoffeeEquipmentUseCaseTest
                 x.Review == request.Review &&
                 x.Rating == request.Rating &&
                 x.Recommend == request.Recommend &&
+                x.ProfileId == request.ProfileId &&
                 x.EquipmentCategoryId == category.Id &&
                 x.Price == request.Price &&
                 x.Currency == request.Currency &&
@@ -95,6 +102,34 @@ public class CoffeeEquipmentUseCaseTest
         #region Assert
 
         Assert.True(exception.Errors.ContainsKey("equipmentCategoryId"));
+
+        _repositoryMock
+            .Verify(repo => repo.AddAsync(It.IsAny<CoffeeEquipment>()), Times.Never());
+
+        #endregion
+    }
+
+    [Fact]
+    public async Task GivenNonExistingProfile_WhenAdd_ThenAValidationExceptionShouldBeThrownAndNothingShouldBeAdded()
+    {
+        #region Arrange
+
+        _profileRepositoryMock
+            .Setup(repo => repo.GetByIdAsync(It.IsAny<Guid>()))
+            .ReturnsAsync((Profile?)null);
+
+        #endregion
+
+        #region Act
+
+        RequestValidationException exception = await Assert.ThrowsAsync<RequestValidationException>(
+            () => _useCase.AddAsync(CreateRequest(Guid.NewGuid())));
+
+        #endregion
+
+        #region Assert
+
+        Assert.True(exception.Errors.ContainsKey("profileId"));
 
         _repositoryMock
             .Verify(repo => repo.AddAsync(It.IsAny<CoffeeEquipment>()), Times.Never());
@@ -248,6 +283,7 @@ public class CoffeeEquipmentUseCaseTest
             Review = "Still great",
             Rating = 4,
             Recommend = false,
+            ProfileId = Guid.NewGuid(),
             EquipmentCategoryId = category.Id,
             FrequencyOfUse = CoffeeEquipmentUseFrequency.Weekly,
             ImageUrl = "https://new-image.png",
@@ -487,6 +523,18 @@ public class CoffeeEquipmentUseCaseTest
         #endregion
     }
 
+    private static Profile CreateProfile()
+    {
+        return new Profile
+        {
+            ExternalId = "external-1",
+            Name = "Raffael",
+            Email = "raffael@example.com",
+            Handle = "raffael",
+            LanguagePref = "pt-BR",
+        };
+    }
+
     private static CoffeeEquipmentCategory CreateCategory()
     {
         return new CoffeeEquipmentCategory
@@ -506,6 +554,7 @@ public class CoffeeEquipmentUseCaseTest
             Review = "The best manual grinder",
             Rating = 5,
             Recommend = true,
+            ProfileId = Guid.NewGuid(),
             EquipmentCategoryId = categoryId,
             Price = 250m,
             Currency = "USD",
@@ -526,6 +575,7 @@ public class CoffeeEquipmentUseCaseTest
             Review = "The best manual grinder",
             Rating = 5,
             Recommend = true,
+            ProfileId = Guid.NewGuid(),
             EquipmentCategoryId = Guid.NewGuid(),
             Price = 250m,
             Currency = "USD",
