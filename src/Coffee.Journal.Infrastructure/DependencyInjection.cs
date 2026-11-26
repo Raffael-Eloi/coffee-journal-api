@@ -22,6 +22,9 @@ public static class DependencyInjection
 
         services.AddScoped<IProfileRepository, ProfileRepository>();
         services.AddScoped<IRoleRepository, RoleRepository>();
+        services.AddScoped<ICoffeeRoasterReviewRepository, CoffeeRoasterReviewRepository>();
+        services.AddScoped<ICoffeeReviewRepository, CoffeeReviewRepository>();
+        services.AddScoped<ICoffeeShopReviewRepository, CoffeeShopReviewRepository>();
         services.AddScoped<ICoffeeRoasterRepository, CoffeeRoasterRepository>();
         services.AddScoped<ICoffeeShopRepository, CoffeeShopRepository>();
         services.AddScoped<ICoffeeRepository, CoffeeRepository>();

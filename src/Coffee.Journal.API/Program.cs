@@ -59,6 +59,9 @@ builder.Services.AddInfrastructure(
 
 builder.Services.AddScoped<IProfileUseCase, ProfileUseCase>();
 builder.Services.AddScoped<IProfileRoleUseCase, ProfileRoleUseCase>();
+builder.Services.AddScoped<ICoffeeRoasterReviewUseCase, CoffeeRoasterReviewUseCase>();
+builder.Services.AddScoped<ICoffeeReviewUseCase, CoffeeReviewUseCase>();
+builder.Services.AddScoped<ICoffeeShopReviewUseCase, CoffeeShopReviewUseCase>();
 builder.Services.AddScoped<ICoffeeRoasterUseCase, CoffeeRoasterUseCase>();
 builder.Services.AddScoped<ICoffeeShopUseCase, CoffeeShopUseCase>();
 builder.Services.AddScoped<ICoffeeUseCase, CoffeeUseCase>();
@@ -86,8 +89,11 @@ MeEndpoint.Map(app);
 ProfileEndpoint.Map(app);
 ProfileRoleEndpoint.Map(app);
 CoffeeRoasterEndpoint.Map(app);
+ReviewEndpoint.Map<ICoffeeRoasterReviewUseCase>(app, "coffee-roasters", "Coffee Roaster Reviews");
 CoffeeShopEndpoint.Map(app);
+ReviewEndpoint.Map<ICoffeeShopReviewUseCase>(app, "coffee-shops", "Coffee Shop Reviews");
 CoffeeEndpoint.Map(app);
+ReviewEndpoint.Map<ICoffeeReviewUseCase>(app, "coffees", "Coffee Reviews");
 CoffeeEquipmentEndpoint.Map(app);
 CoffeeEquipmentCategoryEndpoint.Map(app);
 ImageEndpoint.Map(app);

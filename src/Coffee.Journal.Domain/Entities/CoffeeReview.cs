@@ -1,6 +1,6 @@
 namespace Coffee.Journal.Domain.Entities;
 
-public sealed class CoffeeReview : BaseEntity
+public sealed class CoffeeReview : BaseEntity, IReview
 {
     public required int Rating { get; set; }
 
@@ -10,6 +10,5 @@ public sealed class CoffeeReview : BaseEntity
 
     public required Guid CoffeeId { get; set; }
 
-    // There is no Profile table yet, so this is not a foreign key for now.
     public required Guid ProfileId { get; set; }
 }
