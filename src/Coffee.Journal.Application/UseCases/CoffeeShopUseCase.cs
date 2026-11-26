@@ -22,7 +22,7 @@ public sealed class CoffeeShopUseCase : ICoffeeShopUseCase
 
     public async Task<Guid> AddAsync(CoffeeShopRequest request)
     {
-        await EnsureRoasterExistsAsync(request.CoffeeRoasterId);
+        await EnsureRoastersExistAsync(request.RoasterIds);
 
         CoffeeShop shop = request.ToEntity();
 
@@ -52,7 +52,7 @@ public sealed class CoffeeShopUseCase : ICoffeeShopUseCase
             return false;
         }
 
-        await EnsureRoasterExistsAsync(request.CoffeeRoasterId);
+        await EnsureRoastersExistAsync(request.RoasterIds);
 
         request.ApplyTo(shop);
 
@@ -66,20 +66,18 @@ public sealed class CoffeeShopUseCase : ICoffeeShopUseCase
         return await _repository.DeleteAsync(id);
     }
 
-    private async Task EnsureRoasterExistsAsync(Guid? roasterId)
+    private async Task EnsureRoastersExistAsync(IEnumerable<Guid> roasterIds)
     {
-        if (roasterId is null)
+        foreach (Guid roasterId in roasterIds.Distinct())
         {
-            return;
-        }
+            CoffeeRoaster? roaster = await _roasterRepository.GetByIdAsync(roasterId);
 
-        CoffeeRoaster? roaster = await _roasterRepository.GetByIdAsync(roasterId.Value);
-
-        if (roaster is null)
-        {
-            throw new RequestValidationException(
-                "coffeeRoasterId",
-                $"Coffee roaster '{roasterId}' does not exist.");
+            if (roaster is null)
+            {
+                throw new RequestValidationException(
+                    "roasterIds",
+                    $"Coffee roaster '{roasterId}' does not exist.");
+            }
         }
     }
 }

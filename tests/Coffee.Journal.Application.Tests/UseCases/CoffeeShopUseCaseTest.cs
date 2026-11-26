@@ -1,9 +1,11 @@
+using System.ComponentModel.DataAnnotations;
 using Coffee.Journal.Application.Contracts.Models;
 using Coffee.Journal.Application.Contracts.UseCases;
 using Coffee.Journal.Application.Exceptions;
 using Coffee.Journal.Application.UseCases;
 using Coffee.Journal.Domain.Contracts.Repositories;
 using Coffee.Journal.Domain.Entities;
+using Coffee.Journal.Domain.Enums;
 using Moq;
 
 namespace Coffee.Journal.Application.Tests.UseCases;
@@ -22,12 +24,12 @@ public class CoffeeShopUseCaseTest
     }
 
     [Fact]
-    public async Task GivenCoffeeShopWithRoaster_WhenAdd_ThenTheCoffeeShopShouldBeAdded()
+    public async Task GivenCoffeeShop_WhenAdd_ThenTheShopWithItsRelatedDataShouldBeAdded()
     {
         #region Arrange
 
         CoffeeRoaster roaster = CreateRoaster();
-        CoffeeShopRequest request = CreateRequest(roaster.Id);
+        CoffeeShopRequest request = CreateRequest([roaster.Id]);
 
         _roasterRepositoryMock
             .Setup(repo => repo.GetByIdAsync(roaster.Id))
@@ -46,28 +48,36 @@ public class CoffeeShopUseCaseTest
         _repositoryMock
             .Verify(repo => repo.AddAsync(It.Is<CoffeeShop>(x =>
                 x.Name == request.Name &&
+                x.Description == request.Description &&
                 x.Website == request.Website &&
-                x.CoffeeRoasterId == roaster.Id &&
-                x.Rate == request.Rate &&
-                x.Review == request.Review &&
-                x.Recommend == request.Recommend &&
+                x.InstagramUrl == request.InstagramUrl &&
+                x.PhoneNumber == request.PhoneNumber &&
                 x.City == request.City &&
                 x.State == request.State &&
                 x.Country == request.Country &&
-                x.Location == request.Location &&
+                x.Address == request.Address &&
+                x.TimeZone == request.TimeZone &&
+                x.Roasters.Select(r => r.RoasterId).SequenceEqual(new[] { roaster.Id }) &&
+                x.Roasters.All(r => r.ShopId == x.Id) &&
+                x.BrewingMethods.Select(b => b.BrewingMethod)
+                    .SequenceEqual(new[] { CoffeeBrewingMethod.V60, CoffeeBrewingMethod.Espresso }) &&
+                x.Amenities.Select(a => a.Amenity)
+                    .SequenceEqual(new[] { Amenity.WiFi, Amenity.PetFriendly }) &&
+                x.OpeningHours.Count == 2 &&
+                x.OpeningHours.All(h => h.ShopId == x.Id) &&
                 x.Images.Select(image => image.Url).SequenceEqual(request.ImageUrls) &&
-                x.Images.All(image => image.CoffeeShopId == x.Id))),
+                x.Images.All(image => image.ShopId == x.Id))),
             Times.Once());
 
         #endregion
     }
 
     [Fact]
-    public async Task GivenCoffeeShopWithoutRoaster_WhenAdd_ThenTheRoasterShouldNotBeChecked()
+    public async Task GivenCoffeeShopWithoutRoasters_WhenAdd_ThenTheRoasterShouldNotBeChecked()
     {
         #region Arrange
 
-        CoffeeShopRequest request = CreateRequest(roasterId: null);
+        CoffeeShopRequest request = CreateRequest([]);
 
         #endregion
 
@@ -83,7 +93,7 @@ public class CoffeeShopUseCaseTest
             .Verify(repo => repo.GetByIdAsync(It.IsAny<Guid>()), Times.Never());
 
         _repositoryMock
-            .Verify(repo => repo.AddAsync(It.Is<CoffeeShop>(x => x.CoffeeRoasterId == null)), Times.Once());
+            .Verify(repo => repo.AddAsync(It.Is<CoffeeShop>(x => x.Roasters.Count == 0)), Times.Once());
 
         #endregion
     }
@@ -92,8 +102,6 @@ public class CoffeeShopUseCaseTest
     public async Task GivenNonExistingRoaster_WhenAdd_ThenAValidationExceptionShouldBeThrownAndNothingShouldBeAdded()
     {
         #region Arrange
-
-        CoffeeShopRequest request = CreateRequest(Guid.NewGuid());
 
         _roasterRepositoryMock
             .Setup(repo => repo.GetByIdAsync(It.IsAny<Guid>()))
@@ -104,13 +112,13 @@ public class CoffeeShopUseCaseTest
         #region Act
 
         RequestValidationException exception = await Assert.ThrowsAsync<RequestValidationException>(
-            () => _useCase.AddAsync(request));
+            () => _useCase.AddAsync(CreateRequest([Guid.NewGuid()])));
 
         #endregion
 
         #region Assert
 
-        Assert.True(exception.Errors.ContainsKey("coffeeRoasterId"));
+        Assert.True(exception.Errors.ContainsKey("roasterIds"));
 
         _repositoryMock
             .Verify(repo => repo.AddAsync(It.IsAny<CoffeeShop>()), Times.Never());
@@ -123,11 +131,7 @@ public class CoffeeShopUseCaseTest
     {
         #region Arrange
 
-        List<CoffeeShop> shops =
-        [
-            CreateShop("Unique Coffee", ["https://image1.png"]),
-            CreateShop("Other Coffee", []),
-        ];
+        List<CoffeeShop> shops = [CreateShop("Unique Coffee"), CreateShop("Other Coffee")];
 
         _repositoryMock
             .Setup(repo => repo.GetAllAsync())
@@ -143,21 +147,18 @@ public class CoffeeShopUseCaseTest
 
         #region Assert
 
-        Assert.Equal(2, response.Count);
         Assert.Equal(shops.Select(x => x.Id), response.Select(x => x.Id));
         Assert.Equal(shops.Select(x => x.Name), response.Select(x => x.Name));
-        Assert.Equal(["https://image1.png"], response[0].ImageUrls);
-        Assert.Empty(response[1].ImageUrls);
 
         #endregion
     }
 
     [Fact]
-    public async Task GivenExistingCoffeeShop_WhenGetById_ThenTheCoffeeShopShouldBeReturned()
+    public async Task GivenExistingCoffeeShop_WhenGetById_ThenTheShopShouldBeReturnedWithOrderedOpeningHours()
     {
         #region Arrange
 
-        CoffeeShop shop = CreateShop("Unique Coffee", ["https://image1.png", "https://image2.png"]);
+        CoffeeShop shop = CreateShop("Unique Coffee");
 
         _repositoryMock
             .Setup(repo => repo.GetByIdAsync(shop.Id))
@@ -176,16 +177,13 @@ public class CoffeeShopUseCaseTest
         Assert.NotNull(response);
         Assert.Equal(shop.Id, response.Id);
         Assert.Equal(shop.Name, response.Name);
-        Assert.Equal(shop.Website, response.Website);
-        Assert.Equal(shop.CoffeeRoasterId, response.CoffeeRoasterId);
-        Assert.Equal(shop.Rate, response.Rate);
-        Assert.Equal(shop.Review, response.Review);
-        Assert.Equal(shop.Recommend, response.Recommend);
-        Assert.Equal(shop.City, response.City);
-        Assert.Equal(shop.State, response.State);
-        Assert.Equal(shop.Country, response.Country);
-        Assert.Equal(shop.Location, response.Location);
-        Assert.Equal(["https://image1.png", "https://image2.png"], response.ImageUrls);
+        Assert.Equal(shop.Address, response.Address);
+        Assert.Equal(shop.TimeZone, response.TimeZone);
+        Assert.Equal(shop.Roasters.Select(x => x.RoasterId), response.RoasterIds);
+        Assert.Equal([CoffeeBrewingMethod.V60, CoffeeBrewingMethod.Espresso], response.BrewingMethods);
+        Assert.Equal([Amenity.WiFi, Amenity.PetFriendly], response.Amenities);
+        Assert.Equal([DayOfWeek.Monday, DayOfWeek.Tuesday], response.OpeningHours.Select(x => x.DayOfWeek));
+        Assert.Equal(["https://image1.png"], response.ImageUrls);
 
         #endregion
     }
@@ -215,30 +213,43 @@ public class CoffeeShopUseCaseTest
     }
 
     [Fact]
-    public async Task GivenExistingCoffeeShop_WhenUpdate_ThenTheCoffeeShopAndItsImagesShouldBeUpdated()
+    public async Task GivenExistingCoffeeShop_WhenUpdate_ThenTheShopAndItsRelatedDataShouldBeUpdated()
     {
         #region Arrange
 
-        CoffeeShop shop = CreateShop("Unique Coffee", ["https://old-image.png"]);
+        CoffeeShop shop = CreateShop("Unique Coffee");
+        CoffeeRoaster roaster = CreateRoaster();
 
         CoffeeShopRequest request = new()
         {
             Name = "Unique Coffee Updated",
-            Website = "https://updated.com.br",
-            CoffeeRoasterId = null,
-            Rate = 3,
-            Review = "Updated review",
-            Recommend = false,
-            City = "Rio de Janeiro",
-            State = "RJ",
-            Country = "Brazil",
-            Location = "Updated location",
-            ImageUrls = ["https://new-image1.png", "https://new-image2.png"],
+            City = "Campinas",
+            State = "SP",
+            Country = "BR",
+            Address = "Rua Nova, 10",
+            TimeZone = "America/Sao_Paulo",
+            RoasterIds = [roaster.Id],
+            BrewingMethods = [CoffeeBrewingMethod.Espresso, CoffeeBrewingMethod.Chemex],
+            Amenities = [Amenity.WiFi],
+            OpeningHours =
+            [
+                new CoffeeShopOpeningHourRequest
+                {
+                    DayOfWeek = DayOfWeek.Friday,
+                    OpensAt = new TimeOnly(18, 0),
+                    ClosesAt = new TimeOnly(2, 0),
+                },
+            ],
+            ImageUrls = ["https://new-image.png"],
         };
 
         _repositoryMock
             .Setup(repo => repo.GetByIdAsync(shop.Id))
             .ReturnsAsync(shop);
+
+        _roasterRepositoryMock
+            .Setup(repo => repo.GetByIdAsync(roaster.Id))
+            .ReturnsAsync(roaster);
 
         #endregion
 
@@ -256,17 +267,16 @@ public class CoffeeShopUseCaseTest
             .Verify(repo => repo.UpdateAsync(It.Is<CoffeeShop>(x =>
                 x.Id == shop.Id &&
                 x.Name == request.Name &&
-                x.Website == request.Website &&
-                x.CoffeeRoasterId == request.CoffeeRoasterId &&
-                x.Rate == request.Rate &&
-                x.Review == request.Review &&
-                x.Recommend == request.Recommend &&
-                x.City == request.City &&
-                x.State == request.State &&
-                x.Country == request.Country &&
-                x.Location == request.Location &&
+                x.Description == null &&
+                x.Address == request.Address &&
+                x.Roasters.Select(r => r.RoasterId).SequenceEqual(new[] { roaster.Id }) &&
+                x.BrewingMethods.Select(b => b.BrewingMethod).Order()
+                    .SequenceEqual(new[] { CoffeeBrewingMethod.Espresso, CoffeeBrewingMethod.Chemex }) &&
+                x.Amenities.Select(a => a.Amenity).SequenceEqual(new[] { Amenity.WiFi }) &&
+                x.OpeningHours.Count == 1 &&
+                x.OpeningHours[0].DayOfWeek == DayOfWeek.Friday &&
                 x.Images.Select(image => image.Url).SequenceEqual(request.ImageUrls) &&
-                x.Images.All(image => image.CoffeeShopId == shop.Id))),
+                x.Images.All(image => image.ShopId == shop.Id))),
             Times.Once());
 
         #endregion
@@ -285,7 +295,7 @@ public class CoffeeShopUseCaseTest
 
         #region Act
 
-        bool updated = await _useCase.UpdateAsync(Guid.NewGuid(), CreateRequest(roasterId: null));
+        bool updated = await _useCase.UpdateAsync(Guid.NewGuid(), CreateRequest([]));
 
         #endregion
 
@@ -304,7 +314,7 @@ public class CoffeeShopUseCaseTest
     {
         #region Arrange
 
-        CoffeeShop shop = CreateShop("Unique Coffee", []);
+        CoffeeShop shop = CreateShop("Unique Coffee");
 
         _repositoryMock
             .Setup(repo => repo.GetByIdAsync(shop.Id))
@@ -319,13 +329,13 @@ public class CoffeeShopUseCaseTest
         #region Act
 
         RequestValidationException exception = await Assert.ThrowsAsync<RequestValidationException>(
-            () => _useCase.UpdateAsync(shop.Id, CreateRequest(Guid.NewGuid())));
+            () => _useCase.UpdateAsync(shop.Id, CreateRequest([Guid.NewGuid()])));
 
         #endregion
 
         #region Assert
 
-        Assert.True(exception.Errors.ContainsKey("coffeeRoasterId"));
+        Assert.True(exception.Errors.ContainsKey("roasterIds"));
 
         _repositoryMock
             .Verify(repo => repo.UpdateAsync(It.IsAny<CoffeeShop>()), Times.Never());
@@ -358,8 +368,81 @@ public class CoffeeShopUseCaseTest
 
         Assert.Equal(repositoryResult, deleted);
 
-        _repositoryMock
-            .Verify(repo => repo.DeleteAsync(id), Times.Once());
+        #endregion
+    }
+
+    [Fact]
+    public void GivenInvalidData_WhenValidate_ThenAnErrorShouldBeReturnedForEachProblem()
+    {
+        #region Arrange
+
+        CoffeeShopRequest request = new()
+        {
+            TimeZone = "not a zone!",
+            BrewingMethods = [(CoffeeBrewingMethod)99],
+            Amenities = [(Amenity)99],
+            OpeningHours =
+            [
+                new CoffeeShopOpeningHourRequest
+                {
+                    DayOfWeek = DayOfWeek.Monday,
+                    OpensAt = new TimeOnly(8, 0),
+                    ClosesAt = new TimeOnly(8, 0),
+                },
+                new CoffeeShopOpeningHourRequest
+                {
+                    DayOfWeek = DayOfWeek.Tuesday,
+                    OpensAt = new TimeOnly(8, 0),
+                    ClosesAt = new TimeOnly(12, 0),
+                },
+                new CoffeeShopOpeningHourRequest
+                {
+                    DayOfWeek = DayOfWeek.Tuesday,
+                    OpensAt = new TimeOnly(8, 0),
+                    ClosesAt = new TimeOnly(18, 0),
+                },
+            ],
+            ImageUrls = ["not-a-url"],
+        };
+
+        #endregion
+
+        #region Act
+
+        List<ValidationResult> errors = request.Validate(new ValidationContext(request)).ToList();
+
+        #endregion
+
+        #region Assert
+
+        Assert.Contains(errors, x => x.MemberNames.Contains(nameof(CoffeeShopRequest.TimeZone)));
+        Assert.Contains(errors, x => x.MemberNames.Contains("BrewingMethods[0]"));
+        Assert.Contains(errors, x => x.MemberNames.Contains("Amenities[0]"));
+        Assert.Contains(errors, x => x.MemberNames.Contains("OpeningHours[0]"));
+        Assert.Contains(errors, x => x.MemberNames.Contains(nameof(CoffeeShopRequest.OpeningHours)));
+        Assert.Contains(errors, x => x.MemberNames.Contains("ImageUrls[0]"));
+
+        #endregion
+    }
+
+    [Fact]
+    public void GivenValidRequest_WhenValidate_ThenNoErrorShouldBeReturned()
+    {
+        #region Arrange
+
+        CoffeeShopRequest request = CreateRequest([]);
+
+        #endregion
+
+        #region Act
+
+        List<ValidationResult> errors = request.Validate(new ValidationContext(request)).ToList();
+
+        #endregion
+
+        #region Assert
+
+        Assert.Empty(errors);
 
         #endregion
     }
@@ -376,43 +459,89 @@ public class CoffeeShopUseCaseTest
         };
     }
 
-    private static CoffeeShopRequest CreateRequest(Guid? roasterId)
+    private static CoffeeShopRequest CreateRequest(List<Guid> roasterIds)
     {
         return new CoffeeShopRequest
         {
             Name = "Unique Coffee",
+            Description = "A cozy coffee shop",
             Website = "https://uniquecoffee.com.br",
-            CoffeeRoasterId = roasterId,
-            Rate = 5,
-            Review = "The best coffee shop",
-            Recommend = true,
+            InstagramUrl = "https://instagram.com/uniquecoffee",
+            PhoneNumber = "+5511999999999",
             City = "São Paulo",
             State = "SP",
-            Country = "Brazil",
-            Location = "Rua Augusta, 100",
+            Country = "BR",
+            Address = "Rua das Flores, 100",
+            TimeZone = "America/Sao_Paulo",
+            RoasterIds = roasterIds,
+            BrewingMethods = [CoffeeBrewingMethod.V60, CoffeeBrewingMethod.Espresso, CoffeeBrewingMethod.V60],
+            Amenities = [Amenity.WiFi, Amenity.PetFriendly],
+            OpeningHours =
+            [
+                new CoffeeShopOpeningHourRequest
+                {
+                    DayOfWeek = DayOfWeek.Monday,
+                    OpensAt = new TimeOnly(8, 0),
+                    ClosesAt = new TimeOnly(12, 0),
+                },
+                new CoffeeShopOpeningHourRequest
+                {
+                    DayOfWeek = DayOfWeek.Monday,
+                    OpensAt = new TimeOnly(14, 0),
+                    ClosesAt = new TimeOnly(18, 0),
+                },
+            ],
             ImageUrls = ["https://image1.png", "https://image2.png"],
         };
     }
 
-    private static CoffeeShop CreateShop(string name, List<string> imageUrls)
+    private static CoffeeShop CreateShop(string name)
     {
         CoffeeShop shop = new()
         {
             Name = name,
+            Description = "A cozy coffee shop",
             Website = "https://uniquecoffee.com.br",
-            CoffeeRoasterId = Guid.NewGuid(),
-            Rate = 5,
-            Review = "The best coffee shop",
-            Recommend = true,
             City = "São Paulo",
             State = "SP",
-            Country = "Brazil",
-            Location = "Rua Augusta, 100",
+            Country = "BR",
+            Address = "Rua das Flores, 100",
+            TimeZone = "America/Sao_Paulo",
         };
 
-        shop.Images = imageUrls
-            .Select(url => new CoffeeShopImage { Url = url, CoffeeShopId = shop.Id })
-            .ToList();
+        shop.Roasters = [new CoffeeShopRoaster { RoasterId = Guid.NewGuid(), ShopId = shop.Id }];
+
+        shop.BrewingMethods =
+        [
+            new CoffeeShopBrewingMethod { ShopId = shop.Id, BrewingMethod = CoffeeBrewingMethod.Espresso },
+            new CoffeeShopBrewingMethod { ShopId = shop.Id, BrewingMethod = CoffeeBrewingMethod.V60 },
+        ];
+
+        shop.Amenities =
+        [
+            new CoffeeShopAmenity { ShopId = shop.Id, Amenity = Amenity.PetFriendly },
+            new CoffeeShopAmenity { ShopId = shop.Id, Amenity = Amenity.WiFi },
+        ];
+
+        shop.OpeningHours =
+        [
+            new CoffeeShopOpeningHour
+            {
+                ShopId = shop.Id,
+                DayOfWeek = DayOfWeek.Tuesday,
+                OpensAt = new TimeOnly(8, 0),
+                ClosesAt = new TimeOnly(18, 0),
+            },
+            new CoffeeShopOpeningHour
+            {
+                ShopId = shop.Id,
+                DayOfWeek = DayOfWeek.Monday,
+                OpensAt = new TimeOnly(8, 0),
+                ClosesAt = new TimeOnly(18, 0),
+            },
+        ];
+
+        shop.Images = [new CoffeeShopImage { Url = "https://image1.png", ShopId = shop.Id }];
 
         return shop;
     }

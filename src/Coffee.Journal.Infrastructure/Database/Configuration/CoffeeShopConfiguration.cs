@@ -21,21 +21,20 @@ internal sealed class CoffeeShopConfiguration : IEntityTypeConfiguration<CoffeeS
             .IsRequired();
 
         builder
+            .Property(x => x.Description)
+            .HasMaxLength(4000);
+
+        builder
             .Property(x => x.Website)
             .HasMaxLength(500);
 
         builder
-            .Property(x => x.Rate)
-            .IsRequired();
+            .Property(x => x.InstagramUrl)
+            .HasMaxLength(500);
 
         builder
-            .Property(x => x.Review)
-            .HasMaxLength(4000)
-            .IsRequired();
-
-        builder
-            .Property(x => x.Recommend)
-            .IsRequired();
+            .Property(x => x.PhoneNumber)
+            .HasMaxLength(30);
 
         builder
             .Property(x => x.City)
@@ -53,8 +52,13 @@ internal sealed class CoffeeShopConfiguration : IEntityTypeConfiguration<CoffeeS
             .IsRequired();
 
         builder
-            .Property(x => x.Location)
+            .Property(x => x.Address)
             .HasMaxLength(500)
+            .IsRequired();
+
+        builder
+            .Property(x => x.TimeZone)
+            .HasMaxLength(100)
             .IsRequired();
 
         builder
@@ -66,25 +70,46 @@ internal sealed class CoffeeShopConfiguration : IEntityTypeConfiguration<CoffeeS
             .IsRequired();
 
         builder
-            .HasOne<CoffeeRoaster>()
-            .WithMany()
-            .HasForeignKey(x => x.CoffeeRoasterId)
-            .IsRequired(false)
-            .OnDelete(DeleteBehavior.SetNull);
-
-        builder
             .HasMany(x => x.Images)
             .WithOne()
-            .HasForeignKey(x => x.CoffeeShopId)
+            .HasForeignKey(x => x.ShopId)
             .IsRequired()
             .OnDelete(DeleteBehavior.Cascade);
 
         builder
-            .HasIndex(x => new { x.Name, x.Location })
-            .IsUnique()
-            .HasDatabaseName("UX_CoffeeShops_Name_Location");
+            .HasMany(x => x.Roasters)
+            .WithOne()
+            .HasForeignKey(x => x.ShopId)
+            .IsRequired()
+            .OnDelete(DeleteBehavior.Cascade);
 
         builder
-            .ToTable("CoffeeShops", t => t.HasCheckConstraint("CK_CoffeeShops_Rate", "[Rate] BETWEEN 1 AND 5"));
+            .HasMany(x => x.BrewingMethods)
+            .WithOne()
+            .HasForeignKey(x => x.ShopId)
+            .IsRequired()
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder
+            .HasMany(x => x.Amenities)
+            .WithOne()
+            .HasForeignKey(x => x.ShopId)
+            .IsRequired()
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder
+            .HasMany(x => x.OpeningHours)
+            .WithOne()
+            .HasForeignKey(x => x.ShopId)
+            .IsRequired()
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder
+            .HasIndex(x => new { x.Name, x.Address })
+            .IsUnique()
+            .HasDatabaseName("UX_CoffeeShops_Name_Address");
+
+        builder
+            .ToTable("CoffeeShops");
     }
 }

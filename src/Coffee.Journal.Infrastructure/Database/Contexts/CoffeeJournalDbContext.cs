@@ -22,6 +22,16 @@ internal sealed class CoffeeJournalDbContext : DbContext
 
     public DbSet<CoffeeShopImage> CoffeeShopImages { get; set; }
 
+    public DbSet<CoffeeShopRoaster> CoffeeShopRoasters { get; set; }
+
+    public DbSet<CoffeeShopBrewingMethod> CoffeeShopBrewingMethods { get; set; }
+
+    public DbSet<CoffeeShopAmenity> CoffeeShopAmenities { get; set; }
+
+    public DbSet<CoffeeShopOpeningHour> CoffeeShopOpeningHours { get; set; }
+
+    public DbSet<CoffeeShopReview> CoffeeShopReviews { get; set; }
+
     public DbSet<Domain.Entities.Coffee> Coffees { get; set; }
 
     public DbSet<CoffeePrice> CoffeePrices { get; set; }

@@ -511,13 +511,15 @@ namespace Coffee.Journal.Infrastructure.Database.Migrations
                     b.Property<Guid>("Id")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("Address")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
                     b.Property<string>("City")
                         .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
-
-                    b.Property<Guid?>("CoffeeRoasterId")
-                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Country")
                         .IsRequired()
@@ -527,8 +529,11 @@ namespace Coffee.Journal.Infrastructure.Database.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("Location")
-                        .IsRequired()
+                    b.Property<string>("Description")
+                        .HasMaxLength(4000)
+                        .HasColumnType("nvarchar(4000)");
+
+                    b.Property<string>("InstagramUrl")
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
 
@@ -537,21 +542,19 @@ namespace Coffee.Journal.Infrastructure.Database.Migrations
                         .HasMaxLength(250)
                         .HasColumnType("nvarchar(250)");
 
-                    b.Property<int>("Rate")
-                        .HasColumnType("int");
-
-                    b.Property<bool>("Recommend")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Review")
-                        .IsRequired()
-                        .HasMaxLength(4000)
-                        .HasColumnType("nvarchar(4000)");
+                    b.Property<string>("PhoneNumber")
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
 
                     b.Property<string>("State")
                         .IsRequired()
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("TimeZone")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
@@ -562,16 +565,37 @@ namespace Coffee.Journal.Infrastructure.Database.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CoffeeRoasterId");
-
-                    b.HasIndex("Name", "Location")
+                    b.HasIndex("Name", "Address")
                         .IsUnique()
-                        .HasDatabaseName("UX_CoffeeShops_Name_Location");
+                        .HasDatabaseName("UX_CoffeeShops_Name_Address");
 
-                    b.ToTable("CoffeeShops", null, t =>
-                        {
-                            t.HasCheckConstraint("CK_CoffeeShops_Rate", "[Rate] BETWEEN 1 AND 5");
-                        });
+                    b.ToTable("CoffeeShops", (string)null);
+                });
+
+            modelBuilder.Entity("Coffee.Journal.Domain.Entities.CoffeeShopAmenity", b =>
+                {
+                    b.Property<Guid>("ShopId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("Amenity")
+                        .HasColumnType("int");
+
+                    b.HasKey("ShopId", "Amenity");
+
+                    b.ToTable("CoffeeShopAmenities", (string)null);
+                });
+
+            modelBuilder.Entity("Coffee.Journal.Domain.Entities.CoffeeShopBrewingMethod", b =>
+                {
+                    b.Property<Guid>("ShopId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("BrewingMethod")
+                        .HasColumnType("int");
+
+                    b.HasKey("ShopId", "BrewingMethod");
+
+                    b.ToTable("CoffeeShopBrewingMethods", (string)null);
                 });
 
             modelBuilder.Entity("Coffee.Journal.Domain.Entities.CoffeeShopImage", b =>
@@ -579,11 +603,11 @@ namespace Coffee.Journal.Infrastructure.Database.Migrations
                     b.Property<Guid>("Id")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("CoffeeShopId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
+
+                    b.Property<Guid>("ShopId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
@@ -595,9 +619,101 @@ namespace Coffee.Journal.Infrastructure.Database.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CoffeeShopId");
+                    b.HasIndex("ShopId");
 
                     b.ToTable("CoffeeShopImages", (string)null);
+                });
+
+            modelBuilder.Entity("Coffee.Journal.Domain.Entities.CoffeeShopOpeningHour", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<TimeOnly>("ClosesAt")
+                        .HasColumnType("time");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("DayOfWeek")
+                        .HasColumnType("int");
+
+                    b.Property<TimeOnly>("OpensAt")
+                        .HasColumnType("time");
+
+                    b.Property<Guid>("ShopId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ShopId", "DayOfWeek", "OpensAt")
+                        .IsUnique()
+                        .HasDatabaseName("UX_CoffeeShopOpeningHours_ShopId_DayOfWeek_OpensAt");
+
+                    b.ToTable("CoffeeShopOpeningHours", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_CoffeeShopOpeningHours_DayOfWeek", "[DayOfWeek] BETWEEN 0 AND 6");
+
+                            t.HasCheckConstraint("CK_CoffeeShopOpeningHours_Hours", "[OpensAt] <> [ClosesAt]");
+                        });
+                });
+
+            modelBuilder.Entity("Coffee.Journal.Domain.Entities.CoffeeShopReview", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("ProfileId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("Rating")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("Recommend")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Review")
+                        .IsRequired()
+                        .HasMaxLength(4000)
+                        .HasColumnType("nvarchar(4000)");
+
+                    b.Property<Guid>("ShopId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ShopId", "ProfileId")
+                        .IsUnique()
+                        .HasDatabaseName("UX_CoffeeShopReviews_ShopId_ProfileId");
+
+                    b.ToTable("CoffeeShopReviews", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_CoffeeShopReviews_Rating", "[Rating] BETWEEN 1 AND 5");
+                        });
+                });
+
+            modelBuilder.Entity("Coffee.Journal.Domain.Entities.CoffeeShopRoaster", b =>
+                {
+                    b.Property<Guid>("RoasterId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("ShopId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("RoasterId", "ShopId");
+
+                    b.HasIndex("ShopId");
+
+                    b.ToTable("CoffeeShopRoasters", (string)null);
                 });
 
             modelBuilder.Entity("Coffee.Journal.Domain.Entities.Coffee", b =>
@@ -672,19 +788,62 @@ namespace Coffee.Journal.Infrastructure.Database.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Coffee.Journal.Domain.Entities.CoffeeShop", b =>
+            modelBuilder.Entity("Coffee.Journal.Domain.Entities.CoffeeShopAmenity", b =>
                 {
-                    b.HasOne("Coffee.Journal.Domain.Entities.CoffeeRoaster", null)
-                        .WithMany()
-                        .HasForeignKey("CoffeeRoasterId")
-                        .OnDelete(DeleteBehavior.SetNull);
+                    b.HasOne("Coffee.Journal.Domain.Entities.CoffeeShop", null)
+                        .WithMany("Amenities")
+                        .HasForeignKey("ShopId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Coffee.Journal.Domain.Entities.CoffeeShopBrewingMethod", b =>
+                {
+                    b.HasOne("Coffee.Journal.Domain.Entities.CoffeeShop", null)
+                        .WithMany("BrewingMethods")
+                        .HasForeignKey("ShopId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("Coffee.Journal.Domain.Entities.CoffeeShopImage", b =>
                 {
                     b.HasOne("Coffee.Journal.Domain.Entities.CoffeeShop", null)
                         .WithMany("Images")
-                        .HasForeignKey("CoffeeShopId")
+                        .HasForeignKey("ShopId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Coffee.Journal.Domain.Entities.CoffeeShopOpeningHour", b =>
+                {
+                    b.HasOne("Coffee.Journal.Domain.Entities.CoffeeShop", null)
+                        .WithMany("OpeningHours")
+                        .HasForeignKey("ShopId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Coffee.Journal.Domain.Entities.CoffeeShopReview", b =>
+                {
+                    b.HasOne("Coffee.Journal.Domain.Entities.CoffeeShop", null)
+                        .WithMany()
+                        .HasForeignKey("ShopId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Coffee.Journal.Domain.Entities.CoffeeShopRoaster", b =>
+                {
+                    b.HasOne("Coffee.Journal.Domain.Entities.CoffeeRoaster", null)
+                        .WithMany()
+                        .HasForeignKey("RoasterId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Coffee.Journal.Domain.Entities.CoffeeShop", null)
+                        .WithMany("Roasters")
+                        .HasForeignKey("ShopId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
@@ -705,7 +864,15 @@ namespace Coffee.Journal.Infrastructure.Database.Migrations
 
             modelBuilder.Entity("Coffee.Journal.Domain.Entities.CoffeeShop", b =>
                 {
+                    b.Navigation("Amenities");
+
+                    b.Navigation("BrewingMethods");
+
                     b.Navigation("Images");
+
+                    b.Navigation("OpeningHours");
+
+                    b.Navigation("Roasters");
                 });
 #pragma warning restore 612, 618
         }

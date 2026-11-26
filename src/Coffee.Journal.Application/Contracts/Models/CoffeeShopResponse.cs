@@ -1,3 +1,5 @@
+using Coffee.Journal.Domain.Enums;
+
 namespace Coffee.Journal.Application.Contracts.Models;
 
 public sealed class CoffeeShopResponse : BaseResponse
@@ -6,15 +8,13 @@ public sealed class CoffeeShopResponse : BaseResponse
 
     public string Name { get; init; } = string.Empty;
 
+    public string? Description { get; init; }
+
     public string? Website { get; init; }
 
-    public Guid? CoffeeRoasterId { get; init; }
+    public string? InstagramUrl { get; init; }
 
-    public int Rate { get; init; }
-
-    public string Review { get; init; } = string.Empty;
-
-    public bool Recommend { get; init; }
+    public string? PhoneNumber { get; init; }
 
     public string City { get; init; } = string.Empty;
 
@@ -22,7 +22,17 @@ public sealed class CoffeeShopResponse : BaseResponse
 
     public string Country { get; init; } = string.Empty;
 
-    public string Location { get; init; } = string.Empty;
+    public string Address { get; init; } = string.Empty;
+
+    public string TimeZone { get; init; } = string.Empty;
+
+    public IReadOnlyList<Guid> RoasterIds { get; init; } = [];
+
+    public IReadOnlyList<CoffeeBrewingMethod> BrewingMethods { get; init; } = [];
+
+    public IReadOnlyList<Amenity> Amenities { get; init; } = [];
+
+    public IReadOnlyList<CoffeeShopOpeningHourResponse> OpeningHours { get; init; } = [];
 
     public IReadOnlyList<string> ImageUrls { get; init; } = [];
 

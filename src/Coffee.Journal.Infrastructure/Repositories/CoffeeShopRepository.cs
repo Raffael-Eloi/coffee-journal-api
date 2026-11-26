@@ -16,6 +16,11 @@ internal sealed class CoffeeShopRepository : BaseRepository<CoffeeShop>, ICoffee
         return await _dbContext.Set<CoffeeShop>()
             .AsNoTracking()
             .Include(x => x.Images)
+            .Include(x => x.Roasters)
+            .Include(x => x.BrewingMethods)
+            .Include(x => x.Amenities)
+            .Include(x => x.OpeningHours)
+            .AsSplitQuery()
             .OrderBy(x => x.Name)
             .ToListAsync();
     }
@@ -24,6 +29,11 @@ internal sealed class CoffeeShopRepository : BaseRepository<CoffeeShop>, ICoffee
     {
         return await _dbContext.Set<CoffeeShop>()
             .Include(x => x.Images)
+            .Include(x => x.Roasters)
+            .Include(x => x.BrewingMethods)
+            .Include(x => x.Amenities)
+            .Include(x => x.OpeningHours)
+            .AsSplitQuery()
             .FirstOrDefaultAsync(x => x.Id == id);
     }
 }
