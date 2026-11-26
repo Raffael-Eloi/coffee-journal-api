@@ -5,7 +5,7 @@ namespace Coffee.Journal.Application.Mappings;
 
 internal static class CoffeeEquipmentMappings
 {
-    public static CoffeeEquipment ToEntity(this CoffeeEquipmentRequest request)
+    public static CoffeeEquipment ToEntity(this CoffeeEquipmentRequest request, Guid profileId)
     {
         return new CoffeeEquipment
         {
@@ -15,7 +15,7 @@ internal static class CoffeeEquipmentMappings
             Review = request.Review,
             Rating = request.Rating,
             Recommend = request.Recommend.GetValueOrDefault(),
-            ProfileId = request.ProfileId.GetValueOrDefault(),
+            ProfileId = profileId,
             EquipmentCategoryId = request.EquipmentCategoryId.GetValueOrDefault(),
             Price = request.Price,
             Currency = request.Currency,

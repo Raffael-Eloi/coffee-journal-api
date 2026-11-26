@@ -1,3 +1,4 @@
+using Coffee.Journal.API.Authentication;
 using Coffee.Journal.Application.Contracts.Models;
 using Coffee.Journal.Application.Contracts.UseCases;
 using Microsoft.AspNetCore.Mvc;
@@ -25,6 +26,7 @@ public sealed class CoffeeEndpoint
 
             return Results.Created($"/api/v1.0/coffees/{coffeeId}", new { id = coffeeId });
         })
+            .RequireAuthorization(AuthenticationSettings.ContributorPolicy)
             .WithName("Add Coffee");
 
         group.MapGet("", async (
@@ -64,6 +66,7 @@ public sealed class CoffeeEndpoint
 
             return Results.NoContent();
         })
+            .RequireAuthorization(AuthenticationSettings.ContributorPolicy)
             .WithName("Update Coffee");
 
         group.MapDelete("{id:guid}", async (
@@ -81,6 +84,7 @@ public sealed class CoffeeEndpoint
 
             return Results.NoContent();
         })
+            .RequireAuthorization(AuthenticationSettings.ContributorPolicy)
             .WithName("Delete Coffee");
     }
 }

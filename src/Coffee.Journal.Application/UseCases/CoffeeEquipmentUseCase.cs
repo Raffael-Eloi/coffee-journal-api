@@ -1,3 +1,4 @@
+using Coffee.Journal.Application.Contracts;
 using Coffee.Journal.Application.Contracts.Models;
 using Coffee.Journal.Application.Contracts.UseCases;
 using Coffee.Journal.Application.Exceptions;
@@ -14,26 +15,29 @@ public sealed class CoffeeEquipmentUseCase : ICoffeeEquipmentUseCase
     private readonly ICoffeeEquipmentCategoryRepository _categoryRepository;
     private readonly IProfileRepository _profileRepository;
     private readonly IImageStorage _imageStorage;
+    private readonly ICurrentUser _currentUser;
 
     public CoffeeEquipmentUseCase(
         ICoffeeEquipmentRepository repository,
         ICoffeeEquipmentCategoryRepository categoryRepository,
         IProfileRepository profileRepository,
-        IImageStorage imageStorage)
+        IImageStorage imageStorage,
+        ICurrentUser currentUser)
     {
         _repository = repository;
         _categoryRepository = categoryRepository;
         _profileRepository = profileRepository;
         _imageStorage = imageStorage;
+        _currentUser = currentUser;
     }
 
     public async Task<Guid> AddAsync(CoffeeEquipmentRequest request)
     {
-        await EnsureProfileExistsAsync(request.ProfileId.GetValueOrDefault());
+        Profile profile = await GetCurrentProfileAsync();
         await EnsureCategoryExistsAsync(request.EquipmentCategoryId.GetValueOrDefault());
         EnsureImageBelongsToStorage(request);
 
-        return await _repository.AddAsync(request.ToEntity());
+        return await _repository.AddAsync(request.ToEntity(profile.Id));
     }
 
     public async Task<IReadOnlyList<CoffeeEquipmentResponse>> GetAllAsync()
@@ -59,6 +63,7 @@ public sealed class CoffeeEquipmentUseCase : ICoffeeEquipmentUseCase
             return false;
         }
 
+        await EnsureCanChangeAsync(equipment);
         await EnsureCategoryExistsAsync(request.EquipmentCategoryId.GetValueOrDefault());
         EnsureImageBelongsToStorage(request);
 
@@ -85,6 +90,8 @@ public sealed class CoffeeEquipmentUseCase : ICoffeeEquipmentUseCase
             return false;
         }
 
+        await EnsureCanChangeAsync(equipment);
+
         string? url = equipment.ImageUrl;
 
         bool deleted = await _repository.DeleteAsync(id);
@@ -107,15 +114,25 @@ public sealed class CoffeeEquipmentUseCase : ICoffeeEquipmentUseCase
         }
     }
 
-    private async Task EnsureProfileExistsAsync(Guid profileId)
+    private async Task<Profile> GetCurrentProfileAsync()
     {
-        Profile? profile = await _profileRepository.GetByIdAsync(profileId);
+        string externalId = _currentUser.ExternalId
+            ?? throw new InvalidOperationException("There is no authenticated user for this request.");
 
-        if (profile is null)
+        return await _profileRepository.GetByExternalIdAsync(externalId)
+            ?? throw new RequestValidationException("profile", "Create your profile before adding equipment.");
+    }
+
+    /// <summary>Only the owner or an admin can change a piece of equipment.</summary>
+    private async Task EnsureCanChangeAsync(CoffeeEquipment equipment)
+    {
+        Profile profile = await GetCurrentProfileAsync();
+
+        bool isAdmin = profile.Roles.Any(x => x.Role?.Name == RoleNames.Admin);
+
+        if (equipment.ProfileId != profile.Id && !isAdmin)
         {
-            throw new RequestValidationException(
-                "profileId",
-                $"Profile '{profileId}' does not exist.");
+            throw new ForbiddenException("This equipment belongs to another profile.");
         }
     }
 

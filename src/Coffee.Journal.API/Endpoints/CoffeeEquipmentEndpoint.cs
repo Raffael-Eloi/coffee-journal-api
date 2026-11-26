@@ -1,3 +1,4 @@
+using Coffee.Journal.API.Authentication;
 using Coffee.Journal.Application.Contracts.Models;
 using Coffee.Journal.Application.Contracts.UseCases;
 using Microsoft.AspNetCore.Mvc;
@@ -25,6 +26,7 @@ public sealed class CoffeeEquipmentEndpoint
 
             return Results.Created($"/api/v1.0/coffee-equipments/{equipmentId}", new { id = equipmentId });
         })
+            .RequireAuthorization(AuthenticationSettings.ApiScopePolicy)
             .WithName("Add Coffee Equipment");
 
         group.MapGet("", async (
@@ -64,6 +66,7 @@ public sealed class CoffeeEquipmentEndpoint
 
             return Results.NoContent();
         })
+            .RequireAuthorization(AuthenticationSettings.ApiScopePolicy)
             .WithName("Update Coffee Equipment");
 
         group.MapDelete("{id:guid}", async (
@@ -81,6 +84,7 @@ public sealed class CoffeeEquipmentEndpoint
 
             return Results.NoContent();
         })
+            .RequireAuthorization(AuthenticationSettings.ApiScopePolicy)
             .WithName("Delete Coffee Equipment");
     }
 }

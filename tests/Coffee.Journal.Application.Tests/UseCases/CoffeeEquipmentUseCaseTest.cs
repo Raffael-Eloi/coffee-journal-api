@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using Coffee.Journal.Application.Contracts;
 using Coffee.Journal.Application.Contracts.Models;
 using Coffee.Journal.Application.Contracts.UseCases;
 using Coffee.Journal.Application.Exceptions;
@@ -17,6 +18,8 @@ public class CoffeeEquipmentUseCaseTest
     private readonly Mock<ICoffeeEquipmentCategoryRepository> _categoryRepositoryMock;
     private readonly Mock<IProfileRepository> _profileRepositoryMock;
     private readonly Mock<IImageStorage> _imageStorageMock;
+    private readonly Mock<ICurrentUser> _currentUserMock;
+    private readonly Profile _profile = CreateProfile();
     private readonly ICoffeeEquipmentUseCase _useCase;
 
     public CoffeeEquipmentUseCaseTest()
@@ -25,8 +28,10 @@ public class CoffeeEquipmentUseCaseTest
         _categoryRepositoryMock = new Mock<ICoffeeEquipmentCategoryRepository>();
         _profileRepositoryMock = new Mock<IProfileRepository>();
         _profileRepositoryMock
-            .Setup(repo => repo.GetByIdAsync(It.IsAny<Guid>()))
-            .ReturnsAsync(CreateProfile());
+            .Setup(repo => repo.GetByExternalIdAsync("external-1"))
+            .ReturnsAsync(_profile);
+        _currentUserMock = new Mock<ICurrentUser>();
+        _currentUserMock.SetupGet(user => user.ExternalId).Returns("external-1");
         _imageStorageMock = new Mock<IImageStorage>();
         _imageStorageMock
             .Setup(storage => storage.IsStorageUrl(It.IsAny<string>()))
@@ -35,7 +40,8 @@ public class CoffeeEquipmentUseCaseTest
             _repositoryMock.Object,
             _categoryRepositoryMock.Object,
             _profileRepositoryMock.Object,
-            _imageStorageMock.Object);
+            _imageStorageMock.Object,
+            _currentUserMock.Object);
     }
 
     [Fact]
@@ -68,7 +74,7 @@ public class CoffeeEquipmentUseCaseTest
                 x.Review == request.Review &&
                 x.Rating == request.Rating &&
                 x.Recommend == request.Recommend &&
-                x.ProfileId == request.ProfileId &&
+                x.ProfileId == _profile.Id &&
                 x.EquipmentCategoryId == category.Id &&
                 x.Price == request.Price &&
                 x.Currency == request.Currency &&
@@ -115,7 +121,7 @@ public class CoffeeEquipmentUseCaseTest
         #region Arrange
 
         _profileRepositoryMock
-            .Setup(repo => repo.GetByIdAsync(It.IsAny<Guid>()))
+            .Setup(repo => repo.GetByExternalIdAsync("external-1"))
             .ReturnsAsync((Profile?)null);
 
         #endregion
@@ -129,7 +135,7 @@ public class CoffeeEquipmentUseCaseTest
 
         #region Assert
 
-        Assert.True(exception.Errors.ContainsKey("profileId"));
+        Assert.True(exception.Errors.ContainsKey("profile"));
 
         _repositoryMock
             .Verify(repo => repo.AddAsync(It.IsAny<CoffeeEquipment>()), Times.Never());
@@ -283,7 +289,6 @@ public class CoffeeEquipmentUseCaseTest
             Review = "Still great",
             Rating = 4,
             Recommend = false,
-            ProfileId = Guid.NewGuid(),
             EquipmentCategoryId = category.Id,
             FrequencyOfUse = CoffeeEquipmentUseFrequency.Weekly,
             ImageUrl = "https://new-image.png",
@@ -544,6 +549,63 @@ public class CoffeeEquipmentUseCaseTest
         };
     }
 
+    [Fact]
+    public async Task GivenEquipmentOfAnotherProfile_WhenUpdateOrDelete_ThenAForbiddenExceptionShouldBeThrown()
+    {
+        #region Arrange
+
+        CoffeeEquipment equipment = CreateEquipment("Comandante C40");
+        equipment.ProfileId = Guid.NewGuid();
+
+        _repositoryMock
+            .Setup(repo => repo.GetByIdAsync(equipment.Id))
+            .ReturnsAsync(equipment);
+
+        #endregion
+
+        #region Act & Assert
+
+        await Assert.ThrowsAsync<ForbiddenException>(() => _useCase.UpdateAsync(equipment.Id, CreateRequest(Guid.NewGuid())));
+        await Assert.ThrowsAsync<ForbiddenException>(() => _useCase.DeleteAsync(equipment.Id));
+
+        _repositoryMock.Verify(repo => repo.UpdateAsync(It.IsAny<CoffeeEquipment>()), Times.Never());
+        _repositoryMock.Verify(repo => repo.DeleteAsync(It.IsAny<Guid>()), Times.Never());
+
+        #endregion
+    }
+
+    [Fact]
+    public async Task GivenAnAdmin_WhenDeleteEquipmentOfAnotherProfile_ThenItShouldBeDeleted()
+    {
+        #region Arrange
+
+        _profile.Roles.Add(new ProfileRole { Role = new Role { Name = RoleNames.Admin, Description = "Admin" } });
+
+        CoffeeEquipment equipment = CreateEquipment("Comandante C40");
+        equipment.ProfileId = Guid.NewGuid();
+
+        _repositoryMock
+            .Setup(repo => repo.GetByIdAsync(equipment.Id))
+            .ReturnsAsync(equipment);
+        _repositoryMock
+            .Setup(repo => repo.DeleteAsync(equipment.Id))
+            .ReturnsAsync(true);
+
+        #endregion
+
+        #region Act
+
+        bool deleted = await _useCase.DeleteAsync(equipment.Id);
+
+        #endregion
+
+        #region Assert
+
+        Assert.True(deleted);
+
+        #endregion
+    }
+
     private static CoffeeEquipmentRequest CreateRequest(Guid categoryId)
     {
         return new CoffeeEquipmentRequest
@@ -554,7 +616,6 @@ public class CoffeeEquipmentUseCaseTest
             Review = "The best manual grinder",
             Rating = 5,
             Recommend = true,
-            ProfileId = Guid.NewGuid(),
             EquipmentCategoryId = categoryId,
             Price = 250m,
             Currency = "USD",
@@ -565,7 +626,7 @@ public class CoffeeEquipmentUseCaseTest
         };
     }
 
-    private static CoffeeEquipment CreateEquipment(string name)
+    private CoffeeEquipment CreateEquipment(string name)
     {
         return new CoffeeEquipment
         {
@@ -575,7 +636,7 @@ public class CoffeeEquipmentUseCaseTest
             Review = "The best manual grinder",
             Rating = 5,
             Recommend = true,
-            ProfileId = Guid.NewGuid(),
+            ProfileId = _profile.Id,
             EquipmentCategoryId = Guid.NewGuid(),
             Price = 250m,
             Currency = "USD",

@@ -1,4 +1,5 @@
-﻿using Coffee.Journal.Application.Contracts.Models;
+﻿using Coffee.Journal.API.Authentication;
+using Coffee.Journal.Application.Contracts.Models;
 using Coffee.Journal.Application.Contracts.UseCases;
 using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
@@ -25,6 +26,7 @@ public sealed class CoffeeRoasterEndpoint
 
             return Results.Created($"/api/v1.0/coffee-roasters/{roasterId}", new { id = roasterId });
         })
+            .RequireAuthorization(AuthenticationSettings.ContributorPolicy)
             .WithName("Add Coffee Roaster");
 
         group.MapGet("", async (
@@ -64,6 +66,7 @@ public sealed class CoffeeRoasterEndpoint
 
             return Results.NoContent();
         })
+            .RequireAuthorization(AuthenticationSettings.ContributorPolicy)
             .WithName("Update Coffee Roaster");
 
         group.MapDelete("{id:guid}", async (
@@ -81,6 +84,7 @@ public sealed class CoffeeRoasterEndpoint
 
             return Results.NoContent();
         })
+            .RequireAuthorization(AuthenticationSettings.ContributorPolicy)
             .WithName("Delete Coffee Roaster");
     }
 }

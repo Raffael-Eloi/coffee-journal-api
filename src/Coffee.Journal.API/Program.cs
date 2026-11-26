@@ -1,3 +1,4 @@
+using Coffee.Journal.API.Authentication;
 using Coffee.Journal.API.Endpoints;
 using Coffee.Journal.API.ExceptionHandlers;
 using Coffee.Journal.Application.Contracts.UseCases;
@@ -30,11 +31,14 @@ builder.Services.AddCors(options =>
         });
 });
 
+builder.Services.AddApiAuthentication(builder.Configuration);
+
 builder.Services.AddValidation();
 
 builder.Services.AddOpenApi();
 
 builder.Services.AddExceptionHandler<RequestValidationExceptionHandler>();
+builder.Services.AddExceptionHandler<ForbiddenExceptionHandler>();
 builder.Services.AddProblemDetails();
 
 BlobStorageOptions blobStorageOptions = builder.Configuration
@@ -54,6 +58,7 @@ builder.Services.AddInfrastructure(
     blobStorageOptions);
 
 builder.Services.AddScoped<IProfileUseCase, ProfileUseCase>();
+builder.Services.AddScoped<IProfileRoleUseCase, ProfileRoleUseCase>();
 builder.Services.AddScoped<ICoffeeRoasterUseCase, CoffeeRoasterUseCase>();
 builder.Services.AddScoped<ICoffeeShopUseCase, CoffeeShopUseCase>();
 builder.Services.AddScoped<ICoffeeUseCase, CoffeeUseCase>();
@@ -69,12 +74,17 @@ app.UseExceptionHandler();
 
 app.UseCors(corsPolicyName);
 
+app.UseAuthentication();
+app.UseAuthorization();
+
 app.MapOpenApi();
 app.MapScalarApiReference();
 
 app.UseHttpsRedirection();
 
+MeEndpoint.Map(app);
 ProfileEndpoint.Map(app);
+ProfileRoleEndpoint.Map(app);
 CoffeeRoasterEndpoint.Map(app);
 CoffeeShopEndpoint.Map(app);
 CoffeeEndpoint.Map(app);

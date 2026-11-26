@@ -4,12 +4,6 @@ namespace Coffee.Journal.Application.Contracts.Models;
 
 public sealed class ProfileRequest : BaseRequest
 {
-    // Temporary: once authentication exists, this comes from the access token.
-    // It is used only on create and is never changed afterwards.
-    [MaxLength(200)]
-    [Required]
-    public string ExternalId { get; init; } = string.Empty;
-
     [MaxLength(200)]
     [Required]
     public string Name { get; init; } = string.Empty;
@@ -21,10 +15,10 @@ public sealed class ProfileRequest : BaseRequest
     [Url]
     public string? PhotoUrl { get; init; }
 
+    /// <summary>Used only on create, and only when the access token has no email. It is never changed afterwards.</summary>
     [MaxLength(320)]
     [EmailAddress]
-    [Required]
-    public string Email { get; init; } = string.Empty;
+    public string? Email { get; init; }
 
     [RegularExpression("^[a-z0-9_]{3,30}$", ErrorMessage = "Handle must have 3 to 30 lowercase letters, numbers or underscores.")]
     [Required]

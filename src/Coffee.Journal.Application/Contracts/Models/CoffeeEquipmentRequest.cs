@@ -28,10 +28,6 @@ public sealed class CoffeeEquipmentRequest : BaseRequest, IValidatableObject
     [Required]
     public bool? Recommend { get; init; }
 
-    // Temporary: once authentication exists, the owner comes from the access token.
-    [Required]
-    public Guid? ProfileId { get; init; }
-
     [Required]
     public Guid? EquipmentCategoryId { get; init; }
 

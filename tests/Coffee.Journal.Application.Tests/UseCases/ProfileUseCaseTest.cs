@@ -1,6 +1,5 @@
-using System.ComponentModel.DataAnnotations;
+using Coffee.Journal.Application.Contracts;
 using Coffee.Journal.Application.Contracts.Models;
-using Coffee.Journal.Application.Contracts.UseCases;
 using Coffee.Journal.Application.Exceptions;
 using Coffee.Journal.Application.UseCases;
 using Coffee.Journal.Domain.Contracts.Repositories;
@@ -11,136 +10,197 @@ namespace Coffee.Journal.Application.Tests.UseCases;
 
 public class ProfileUseCaseTest
 {
-    private readonly Mock<IProfileRepository> _repositoryMock;
-    private readonly IProfileUseCase _useCase;
+    private readonly Mock<IProfileRepository> _repository = new();
+    private readonly Mock<ICurrentUser> _currentUser = new();
 
-    public ProfileUseCaseTest()
+    private ProfileUseCase CreateUseCase(string? externalId = "ext-1", string? email = "token@example.com")
     {
-        _repositoryMock = new Mock<IProfileRepository>();
-        _useCase = new ProfileUseCase(_repositoryMock.Object);
+        _currentUser.SetupGet(x => x.IsAuthenticated).Returns(externalId is not null);
+        _currentUser.SetupGet(x => x.ExternalId).Returns(externalId);
+        _currentUser.SetupGet(x => x.Email).Returns(email);
+
+        return new ProfileUseCase(_repository.Object, _currentUser.Object);
     }
 
     [Fact]
-    public async Task GivenProfile_WhenAdd_ThenTheProfileShouldBeAddedWithoutRoles()
+    public async Task GivenNewUser_WhenCreateCurrent_ThenTheProfileShouldUseTheTokenIdentity()
     {
         #region Arrange
 
-        ProfileRequest request = CreateRequest();
+        ProfileUseCase useCase = CreateUseCase();
+        Profile? saved = null;
+        _repository.Setup(x => x.AddAsync(It.IsAny<Profile>()))
+            .Callback<Profile>(p => saved = p)
+            .ReturnsAsync(Guid.NewGuid());
 
         #endregion
 
         #region Act
 
-        await _useCase.AddAsync(request);
+        await useCase.CreateCurrentAsync(CreateRequest("raffael"));
 
         #endregion
 
         #region Assert
 
-        _repositoryMock
-            .Verify(repo => repo.AddAsync(It.Is<Profile>(x =>
-                x.ExternalId == request.ExternalId &&
-                x.Name == request.Name &&
-                x.Nickname == request.Nickname &&
-                x.PhotoUrl == request.PhotoUrl &&
-                x.Email == request.Email &&
-                x.Handle == request.Handle &&
-                x.Bio == request.Bio &&
-                x.InstagramUrl == request.InstagramUrl &&
-                x.LinkedInUrl == request.LinkedInUrl &&
-                x.LanguagePref == request.LanguagePref &&
-                x.Roles.Count == 0)),
-            Times.Once());
-
-        #endregion
-    }
-
-    [Theory]
-    [InlineData("externalId")]
-    [InlineData("email")]
-    [InlineData("handle")]
-    public async Task GivenAlreadyUsedValue_WhenAdd_ThenAValidationExceptionShouldBeThrownAndNothingShouldBeAdded(string field)
-    {
-        #region Arrange
-
-        _repositoryMock
-            .Setup(repo => repo.ExternalIdExistsAsync(It.IsAny<string>(), It.IsAny<Guid?>()))
-            .ReturnsAsync(field == "externalId");
-        _repositoryMock
-            .Setup(repo => repo.EmailExistsAsync(It.IsAny<string>(), It.IsAny<Guid?>()))
-            .ReturnsAsync(field == "email");
-        _repositoryMock
-            .Setup(repo => repo.HandleExistsAsync(It.IsAny<string>(), It.IsAny<Guid?>()))
-            .ReturnsAsync(field == "handle");
-
-        #endregion
-
-        #region Act
-
-        RequestValidationException exception = await Assert.ThrowsAsync<RequestValidationException>(
-            () => _useCase.AddAsync(CreateRequest()));
-
-        #endregion
-
-        #region Assert
-
-        Assert.True(exception.Errors.ContainsKey(field));
-
-        _repositoryMock
-            .Verify(repo => repo.AddAsync(It.IsAny<Profile>()), Times.Never());
+        Assert.NotNull(saved);
+        Assert.Equal("ext-1", saved!.ExternalId);
+        Assert.Equal("token@example.com", saved.Email);
+        Assert.Equal("raffael", saved.Handle);
 
         #endregion
     }
 
     [Fact]
-    public async Task GivenExistingProfile_WhenGetById_ThenTheProfileShouldBeReturnedWithRoleNames()
+    public async Task GivenTokenWithoutEmail_WhenCreateCurrent_ThenTheRequestEmailShouldBeUsed()
     {
         #region Arrange
 
-        Profile profile = CreateProfile();
-        profile.Roles =
-        [
-            new ProfileRole { ProfileId = profile.Id, Role = new Role { Name = "Contributor", Description = "x" } },
-            new ProfileRole { ProfileId = profile.Id, Role = new Role { Name = "Admin", Description = "x" } },
-        ];
-
-        _repositoryMock
-            .Setup(repo => repo.GetByIdAsync(profile.Id))
-            .ReturnsAsync(profile);
+        ProfileUseCase useCase = CreateUseCase(email: null);
+        Profile? saved = null;
+        _repository.Setup(x => x.AddAsync(It.IsAny<Profile>()))
+            .Callback<Profile>(p => saved = p)
+            .ReturnsAsync(Guid.NewGuid());
 
         #endregion
 
         #region Act
 
-        ProfileResponse? response = await _useCase.GetByIdAsync(profile.Id);
+        await useCase.CreateCurrentAsync(CreateRequest("raffael", "form@example.com"));
+
+        #endregion
+
+        #region Assert
+
+        Assert.Equal("form@example.com", saved!.Email);
+
+        #endregion
+    }
+
+    [Fact]
+    public async Task GivenNoEmailAnywhere_WhenCreateCurrent_ThenItShouldFail()
+    {
+        #region Arrange
+
+        ProfileUseCase useCase = CreateUseCase(email: null);
+
+        #endregion
+
+        #region Act & Assert
+
+        await Assert.ThrowsAsync<RequestValidationException>(() => useCase.CreateCurrentAsync(CreateRequest("raffael")));
+        _repository.Verify(x => x.AddAsync(It.IsAny<Profile>()), Times.Never);
+
+        #endregion
+    }
+
+    [Fact]
+    public async Task GivenUserWithProfile_WhenCreateCurrent_ThenItShouldFail()
+    {
+        #region Arrange
+
+        ProfileUseCase useCase = CreateUseCase();
+        _repository.Setup(x => x.ExternalIdExistsAsync("ext-1", null)).ReturnsAsync(true);
+
+        #endregion
+
+        #region Act & Assert
+
+        await Assert.ThrowsAsync<RequestValidationException>(() => useCase.CreateCurrentAsync(CreateRequest("raffael")));
+        _repository.Verify(x => x.AddAsync(It.IsAny<Profile>()), Times.Never);
+
+        #endregion
+    }
+
+    [Fact]
+    public async Task GivenHandleInUse_WhenCreateCurrent_ThenItShouldFail()
+    {
+        #region Arrange
+
+        ProfileUseCase useCase = CreateUseCase();
+        _repository.Setup(x => x.HandleExistsAsync("taken", null)).ReturnsAsync(true);
+
+        #endregion
+
+        #region Act & Assert
+
+        await Assert.ThrowsAsync<RequestValidationException>(() => useCase.CreateCurrentAsync(CreateRequest("taken")));
+        _repository.Verify(x => x.AddAsync(It.IsAny<Profile>()), Times.Never);
+
+        #endregion
+    }
+
+    [Fact]
+    public async Task GivenEmailInUse_WhenCreateCurrent_ThenItShouldFail()
+    {
+        #region Arrange
+
+        ProfileUseCase useCase = CreateUseCase();
+        _repository.Setup(x => x.EmailExistsAsync("token@example.com", null)).ReturnsAsync(true);
+
+        #endregion
+
+        #region Act & Assert
+
+        await Assert.ThrowsAsync<RequestValidationException>(() => useCase.CreateCurrentAsync(CreateRequest("raffael")));
+
+        #endregion
+    }
+
+    [Fact]
+    public async Task GivenNoAuthenticatedUser_WhenCreateCurrent_ThenItShouldFail()
+    {
+        #region Arrange
+
+        ProfileUseCase useCase = CreateUseCase(externalId: null);
+
+        #endregion
+
+        #region Act & Assert
+
+        await Assert.ThrowsAsync<InvalidOperationException>(() => useCase.CreateCurrentAsync(CreateRequest("raffael")));
+
+        #endregion
+    }
+
+    [Fact]
+    public async Task GivenExistingProfile_WhenGetCurrent_ThenTheRolesShouldBeReturned()
+    {
+        #region Arrange
+
+        ProfileUseCase useCase = CreateUseCase();
+        Profile profile = CreateProfile("ext-1", "raffael");
+        profile.Roles.Add(new ProfileRole { Role = new Role { Name = "Contributor", Description = "Contributor" } });
+        _repository.Setup(x => x.GetByExternalIdAsync("ext-1")).ReturnsAsync(profile);
+
+        #endregion
+
+        #region Act
+
+        ProfileResponse? response = await useCase.GetCurrentAsync();
 
         #endregion
 
         #region Assert
 
         Assert.NotNull(response);
-        Assert.Equal(profile.Id, response.Id);
-        Assert.Equal(profile.Handle, response.Handle);
-        Assert.Equal(profile.Email, response.Email);
-        Assert.Equal(["Admin", "Contributor"], response.Roles);
+        Assert.Equal(["Contributor"], response!.Roles);
 
         #endregion
     }
 
     [Fact]
-    public async Task GivenNonExistingProfile_WhenGetById_ThenNullShouldBeReturned()
+    public async Task GivenUserWithoutProfile_WhenGetCurrent_ThenNullShouldBeReturned()
     {
         #region Arrange
 
-        _repositoryMock
-            .Setup(repo => repo.GetByIdAsync(It.IsAny<Guid>()))
-            .ReturnsAsync((Profile?)null);
+        ProfileUseCase useCase = CreateUseCase();
 
         #endregion
 
         #region Act
 
-        ProfileResponse? response = await _useCase.GetByIdAsync(Guid.NewGuid());
+        ProfileResponse? response = await useCase.GetCurrentAsync();
 
         #endregion
 
@@ -152,67 +212,65 @@ public class ProfileUseCaseTest
     }
 
     [Fact]
-    public async Task GivenExistingProfile_WhenUpdate_ThenTheEditableFieldsShouldBeUpdatedAndTheExternalIdKept()
+    public async Task GivenExistingProfile_WhenUpdateCurrent_ThenEditableFieldsShouldChangeButNotTheIdentity()
     {
         #region Arrange
 
-        Profile profile = CreateProfile();
-
-        ProfileRequest request = new()
-        {
-            ExternalId = "another-external-id",
-            Name = "Raffael Updated",
-            Email = "new@example.com",
-            Handle = "new_handle",
-            LanguagePref = "en-US",
-            Bio = "Coffee lover",
-        };
-
-        _repositoryMock
-            .Setup(repo => repo.GetByIdAsync(profile.Id))
-            .ReturnsAsync(profile);
+        ProfileUseCase useCase = CreateUseCase();
+        Profile profile = CreateProfile("ext-1", "old_handle");
+        _repository.Setup(x => x.GetByExternalIdAsync("ext-1")).ReturnsAsync(profile);
 
         #endregion
 
         #region Act
 
-        bool updated = await _useCase.UpdateAsync(profile.Id, request);
+        bool updated = await useCase.UpdateCurrentAsync(CreateRequest("new_handle", "other@example.com"));
 
         #endregion
 
         #region Assert
 
         Assert.True(updated);
-
-        _repositoryMock
-            .Verify(repo => repo.UpdateAsync(It.Is<Profile>(x =>
-                x.Id == profile.Id &&
-                x.ExternalId == "external-1" &&
-                x.Name == request.Name &&
-                x.Email == request.Email &&
-                x.Handle == request.Handle &&
-                x.LanguagePref == request.LanguagePref &&
-                x.Bio == request.Bio &&
-                x.Nickname == null)),
-            Times.Once());
+        Assert.Equal("new_handle", profile.Handle);
+        Assert.Equal("ext-1", profile.ExternalId);
+        Assert.Equal("old@example.com", profile.Email);
+        _repository.Verify(x => x.UpdateAsync(profile), Times.Once);
 
         #endregion
     }
 
     [Fact]
-    public async Task GivenNonExistingProfile_WhenUpdate_ThenFalseShouldBeReturnedAndNothingShouldBeUpdated()
+    public async Task GivenHandleInUse_WhenUpdateCurrent_ThenItShouldFail()
     {
         #region Arrange
 
-        _repositoryMock
-            .Setup(repo => repo.GetByIdAsync(It.IsAny<Guid>()))
-            .ReturnsAsync((Profile?)null);
+        ProfileUseCase useCase = CreateUseCase();
+        Profile profile = CreateProfile("ext-1", "old_handle");
+        _repository.Setup(x => x.GetByExternalIdAsync("ext-1")).ReturnsAsync(profile);
+        _repository.Setup(x => x.HandleExistsAsync("taken", profile.Id)).ReturnsAsync(true);
+
+        #endregion
+
+        #region Act & Assert
+
+        await Assert.ThrowsAsync<RequestValidationException>(() => useCase.UpdateCurrentAsync(CreateRequest("taken")));
+        _repository.Verify(x => x.UpdateAsync(It.IsAny<Profile>()), Times.Never);
+
+        #endregion
+    }
+
+    [Fact]
+    public async Task GivenUserWithoutProfile_WhenUpdateCurrent_ThenFalseShouldBeReturned()
+    {
+        #region Arrange
+
+        ProfileUseCase useCase = CreateUseCase();
 
         #endregion
 
         #region Act
 
-        bool updated = await _useCase.UpdateAsync(Guid.NewGuid(), CreateRequest());
+        bool updated = await useCase.UpdateCurrentAsync(CreateRequest("raffael"));
 
         #endregion
 
@@ -220,98 +278,102 @@ public class ProfileUseCaseTest
 
         Assert.False(updated);
 
-        _repositoryMock
-            .Verify(repo => repo.UpdateAsync(It.IsAny<Profile>()), Times.Never());
+        #endregion
+    }
+
+    [Fact]
+    public async Task GivenExistingProfile_WhenDeleteCurrent_ThenItShouldBeDeleted()
+    {
+        #region Arrange
+
+        ProfileUseCase useCase = CreateUseCase();
+        Profile profile = CreateProfile("ext-1", "raffael");
+        _repository.Setup(x => x.GetByExternalIdAsync("ext-1")).ReturnsAsync(profile);
+        _repository.Setup(x => x.DeleteAsync(profile.Id)).ReturnsAsync(true);
+
+        #endregion
+
+        #region Act
+
+        bool deleted = await useCase.DeleteCurrentAsync();
+
+        #endregion
+
+        #region Assert
+
+        Assert.True(deleted);
 
         #endregion
     }
 
     [Fact]
-    public async Task GivenHandleUsedByAnotherProfile_WhenUpdate_ThenAValidationExceptionShouldBeThrownAndNothingShouldBeUpdated()
+    public async Task GivenUserWithoutProfile_WhenDeleteCurrent_ThenFalseShouldBeReturned()
     {
         #region Arrange
 
-        Profile profile = CreateProfile();
-
-        _repositoryMock
-            .Setup(repo => repo.GetByIdAsync(profile.Id))
-            .ReturnsAsync(profile);
-
-        _repositoryMock
-            .Setup(repo => repo.HandleExistsAsync("taken", profile.Id))
-            .ReturnsAsync(true);
+        ProfileUseCase useCase = CreateUseCase();
 
         #endregion
 
         #region Act
 
-        RequestValidationException exception = await Assert.ThrowsAsync<RequestValidationException>(
-            () => _useCase.UpdateAsync(profile.Id, CreateRequest("taken")));
+        bool deleted = await useCase.DeleteCurrentAsync();
 
         #endregion
 
         #region Assert
 
-        Assert.True(exception.Errors.ContainsKey("handle"));
-
-        _repositoryMock
-            .Verify(repo => repo.UpdateAsync(It.IsAny<Profile>()), Times.Never());
+        Assert.False(deleted);
 
         #endregion
     }
 
-    [Theory]
-    [InlineData("ab")]
-    [InlineData("Has_Upper")]
-    [InlineData("has space")]
-    public void GivenInvalidHandle_WhenValidate_ThenAnErrorShouldBeReturned(string handle)
+    [Fact]
+    public async Task GivenExistingProfile_WhenGetPublicById_ThenTheEmailAndRolesShouldNotBeExposed()
     {
         #region Arrange
 
-        ProfileRequest request = new() { Handle = handle };
+        ProfileUseCase useCase = CreateUseCase(externalId: null);
+        Profile profile = CreateProfile("ext-1", "raffael");
+        _repository.Setup(x => x.GetByIdAsync(profile.Id)).ReturnsAsync(profile);
 
         #endregion
 
         #region Act
 
-        List<ValidationResult> errors = [];
-        Validator.TryValidateObject(request, new ValidationContext(request), errors, validateAllProperties: true);
+        PublicProfileResponse? response = await useCase.GetPublicByIdAsync(profile.Id);
 
         #endregion
 
         #region Assert
 
-        Assert.Contains(errors, x => x.MemberNames.Contains(nameof(ProfileRequest.Handle)));
+        Assert.NotNull(response);
+        Assert.Equal("raffael", response!.Handle);
+        Assert.DoesNotContain(typeof(PublicProfileResponse).GetProperties(), p => p.Name is "Email" or "Roles" or "Name");
 
         #endregion
     }
 
-    private static ProfileRequest CreateRequest(string handle = "raffael")
+    private static ProfileRequest CreateRequest(string handle, string? email = null)
     {
         return new ProfileRequest
         {
-            ExternalId = "external-1",
             Name = "Raffael",
-            Nickname = "Raff",
-            PhotoUrl = "https://photo.png",
-            Email = "raffael@example.com",
             Handle = handle,
-            Bio = "Coffee lover",
-            InstagramUrl = "https://instagram.com/raffael",
-            LinkedInUrl = "https://linkedin.com/in/raffael",
-            LanguagePref = "pt-BR",
+            Email = email,
         };
     }
 
-    private static Profile CreateProfile()
+    private static Profile CreateProfile(string externalId, string handle)
     {
         return new Profile
         {
-            ExternalId = "external-1",
+            Id = Guid.NewGuid(),
+            ExternalId = externalId,
             Name = "Raffael",
-            Email = "raffael@example.com",
-            Handle = "raffael",
-            LanguagePref = "pt-BR",
+            Email = "old@example.com",
+            Handle = handle,
+            LanguagePref = "en",
         };
     }
 }

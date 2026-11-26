@@ -1,3 +1,4 @@
+using Coffee.Journal.API.Authentication;
 using Coffee.Journal.Application.Contracts.Models;
 using Coffee.Journal.Application.Contracts.UseCases;
 using Microsoft.AspNetCore.Mvc;
@@ -12,61 +13,74 @@ public sealed class ProfileEndpoint
             .MapGroup("/api/v1.0/profiles")
             .WithTags("Profiles");
 
-        group.MapPost("", async (
-            [FromServices] IProfileUseCase useCase,
-            [FromServices] ILogger<ProfileEndpoint> logger,
-            [FromBody] ProfileRequest request) =>
+        // The profile of the logged-in user.
+        group.MapGet("me", async (
+            [FromServices] IProfileUseCase useCase) =>
         {
-            Guid profileId = await useCase.AddAsync(request);
-            logger.LogInformation("Profile {profileId} created", profileId);
-
-            return Results.Created($"/api/v1.0/profiles/{profileId}", new { id = profileId });
-        })
-            .WithName("Add Profile");
-
-        group.MapGet("{id:guid}", async (
-            [FromServices] IProfileUseCase useCase,
-            Guid id) =>
-        {
-            ProfileResponse? profile = await useCase.GetByIdAsync(id);
+            ProfileResponse? profile = await useCase.GetCurrentAsync();
 
             return profile is null ? Results.NotFound() : Results.Ok(profile);
         })
-            .WithName("Get Profile By Id");
+            .RequireAuthorization(AuthenticationSettings.ApiScopePolicy)
+            .WithName("Get My Profile");
 
-        group.MapPut("{id:guid}", async (
+        group.MapPost("me", async (
             [FromServices] IProfileUseCase useCase,
             [FromServices] ILogger<ProfileEndpoint> logger,
-            Guid id,
             [FromBody] ProfileRequest request) =>
         {
-            bool updated = await useCase.UpdateAsync(id, request);
+            Guid profileId = await useCase.CreateCurrentAsync(request);
+            logger.LogInformation("Profile {profileId} created", profileId);
+
+            return Results.Created("/api/v1.0/profiles/me", new { id = profileId });
+        })
+            .RequireAuthorization(AuthenticationSettings.ApiScopePolicy)
+            .WithName("Create My Profile");
+
+        group.MapPut("me", async (
+            [FromServices] IProfileUseCase useCase,
+            [FromServices] ILogger<ProfileEndpoint> logger,
+            [FromBody] ProfileRequest request) =>
+        {
+            bool updated = await useCase.UpdateCurrentAsync(request);
             if (!updated)
             {
                 return Results.NotFound();
             }
 
-            logger.LogInformation("Profile {profileId} updated", id);
+            logger.LogInformation("Profile updated");
 
             return Results.NoContent();
         })
-            .WithName("Update Profile");
+            .RequireAuthorization(AuthenticationSettings.ApiScopePolicy)
+            .WithName("Update My Profile");
 
-        group.MapDelete("{id:guid}", async (
+        group.MapDelete("me", async (
             [FromServices] IProfileUseCase useCase,
-            [FromServices] ILogger<ProfileEndpoint> logger,
-            Guid id) =>
+            [FromServices] ILogger<ProfileEndpoint> logger) =>
         {
-            bool deleted = await useCase.DeleteAsync(id);
+            bool deleted = await useCase.DeleteCurrentAsync();
             if (!deleted)
             {
                 return Results.NotFound();
             }
 
-            logger.LogInformation("Profile {profileId} deleted", id);
+            logger.LogInformation("Profile deleted");
 
             return Results.NoContent();
         })
-            .WithName("Delete Profile");
+            .RequireAuthorization(AuthenticationSettings.ApiScopePolicy)
+            .WithName("Delete My Profile");
+
+        // What anyone can see about a profile.
+        group.MapGet("{id:guid}", async (
+            [FromServices] IProfileUseCase useCase,
+            Guid id) =>
+        {
+            PublicProfileResponse? profile = await useCase.GetPublicByIdAsync(id);
+
+            return profile is null ? Results.NotFound() : Results.Ok(profile);
+        })
+            .WithName("Get Public Profile");
     }
 }

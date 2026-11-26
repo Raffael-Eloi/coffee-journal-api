@@ -21,6 +21,7 @@ public static class DependencyInjection
             options.UseSqlServer(connectionString));
 
         services.AddScoped<IProfileRepository, ProfileRepository>();
+        services.AddScoped<IRoleRepository, RoleRepository>();
         services.AddScoped<ICoffeeRoasterRepository, CoffeeRoasterRepository>();
         services.AddScoped<ICoffeeShopRepository, CoffeeShopRepository>();
         services.AddScoped<ICoffeeRepository, CoffeeRepository>();

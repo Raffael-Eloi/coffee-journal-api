@@ -11,6 +11,15 @@ internal sealed class CoffeeEquipmentRepository : BaseRepository<CoffeeEquipment
     {
     }
 
+    public async Task<IReadOnlyList<CoffeeEquipment>> GetByProfileAsync(Guid profileId)
+    {
+        return await _dbContext.Set<CoffeeEquipment>()
+            .AsNoTracking()
+            .Where(x => x.ProfileId == profileId)
+            .OrderBy(x => x.Name)
+            .ToListAsync();
+    }
+
     public override async Task<IReadOnlyList<CoffeeEquipment>> GetAllAsync()
     {
         return await _dbContext.Set<CoffeeEquipment>()

@@ -1,3 +1,4 @@
+using Coffee.Journal.API.Authentication;
 using Coffee.Journal.Application.Contracts.Models;
 using Coffee.Journal.Application.Contracts.UseCases;
 using Microsoft.AspNetCore.Mvc;
@@ -31,6 +32,7 @@ public sealed class ImageEndpoint
             return Results.Created(response.Url, response);
         })
             .DisableAntiforgery()
+            .RequireAuthorization(AuthenticationSettings.ApiScopePolicy)
             .WithName("Upload Image");
     }
 }

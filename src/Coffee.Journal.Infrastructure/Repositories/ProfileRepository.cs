@@ -29,6 +29,14 @@ internal sealed class ProfileRepository : BaseRepository<Profile>, IProfileRepos
             .FirstOrDefaultAsync(x => x.Id == id);
     }
 
+    public async Task<Profile?> GetByExternalIdAsync(string externalId)
+    {
+        return await _dbContext.Set<Profile>()
+            .Include(x => x.Roles)
+            .ThenInclude(x => x.Role)
+            .FirstOrDefaultAsync(x => x.ExternalId == externalId);
+    }
+
     public async Task<bool> ExternalIdExistsAsync(string externalId, Guid? excludeId = null)
     {
         return await _dbContext.Set<Profile>()
