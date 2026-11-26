@@ -332,11 +332,33 @@ namespace Coffee.Journal.Infrastructure.Database.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("Address")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("City")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("Country")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("Description")
+                        .HasMaxLength(4000)
+                        .HasColumnType("nvarchar(4000)");
+
                     b.Property<bool>("HasMembershipOption")
                         .HasColumnType("bit");
+
+                    b.Property<string>("InstagramUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
 
                     b.Property<string>("LogoUrl")
                         .HasMaxLength(4000)
@@ -347,16 +369,14 @@ namespace Coffee.Journal.Infrastructure.Database.Migrations
                         .HasMaxLength(250)
                         .HasColumnType("nvarchar(250)");
 
-                    b.Property<int>("Rate")
-                        .HasColumnType("int");
+                    b.Property<string>("PhoneNumber")
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
 
-                    b.Property<bool>("Recommend")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Review")
+                    b.Property<string>("State")
                         .IsRequired()
-                        .HasMaxLength(4000)
-                        .HasColumnType("nvarchar(4000)");
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
@@ -371,9 +391,85 @@ namespace Coffee.Journal.Infrastructure.Database.Migrations
                         .IsUnique()
                         .HasDatabaseName("UX_CoffeeRoasters_Name");
 
-                    b.ToTable("CoffeeRoasters", null, t =>
+                    b.ToTable("CoffeeRoasters", (string)null);
+                });
+
+            modelBuilder.Entity("Coffee.Journal.Domain.Entities.CoffeeRoasterClassification", b =>
+                {
+                    b.Property<Guid>("RoasterId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("Classification")
+                        .HasColumnType("int");
+
+                    b.HasKey("RoasterId", "Classification");
+
+                    b.ToTable("CoffeeRoasterClassifications", (string)null);
+                });
+
+            modelBuilder.Entity("Coffee.Journal.Domain.Entities.CoffeeRoasterImage", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("RoasterId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Url")
+                        .IsRequired()
+                        .HasMaxLength(4000)
+                        .HasColumnType("nvarchar(4000)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RoasterId");
+
+                    b.ToTable("CoffeeRoasterImages", (string)null);
+                });
+
+            modelBuilder.Entity("Coffee.Journal.Domain.Entities.CoffeeRoasterReview", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("ProfileId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("Rating")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("Recommend")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Review")
+                        .IsRequired()
+                        .HasMaxLength(4000)
+                        .HasColumnType("nvarchar(4000)");
+
+                    b.Property<Guid>("RoasterId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RoasterId", "ProfileId")
+                        .IsUnique()
+                        .HasDatabaseName("UX_CoffeeRoasterReviews_RoasterId_ProfileId");
+
+                    b.ToTable("CoffeeRoasterReviews", null, t =>
                         {
-                            t.HasCheckConstraint("CK_CoffeeRoasters_Rate", "[Rate] BETWEEN 1 AND 5");
+                            t.HasCheckConstraint("CK_CoffeeRoasterReviews_Rating", "[Rating] BETWEEN 1 AND 5");
                         });
                 });
 
@@ -507,6 +603,33 @@ namespace Coffee.Journal.Infrastructure.Database.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("Coffee.Journal.Domain.Entities.CoffeeRoasterClassification", b =>
+                {
+                    b.HasOne("Coffee.Journal.Domain.Entities.CoffeeRoaster", null)
+                        .WithMany("Classifications")
+                        .HasForeignKey("RoasterId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Coffee.Journal.Domain.Entities.CoffeeRoasterImage", b =>
+                {
+                    b.HasOne("Coffee.Journal.Domain.Entities.CoffeeRoaster", null)
+                        .WithMany("Images")
+                        .HasForeignKey("RoasterId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Coffee.Journal.Domain.Entities.CoffeeRoasterReview", b =>
+                {
+                    b.HasOne("Coffee.Journal.Domain.Entities.CoffeeRoaster", null)
+                        .WithMany()
+                        .HasForeignKey("RoasterId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("Coffee.Journal.Domain.Entities.CoffeeShop", b =>
                 {
                     b.HasOne("Coffee.Journal.Domain.Entities.CoffeeRoaster", null)
@@ -529,6 +652,13 @@ namespace Coffee.Journal.Infrastructure.Database.Migrations
                     b.Navigation("Images");
 
                     b.Navigation("Prices");
+                });
+
+            modelBuilder.Entity("Coffee.Journal.Domain.Entities.CoffeeRoaster", b =>
+                {
+                    b.Navigation("Classifications");
+
+                    b.Navigation("Images");
                 });
 
             modelBuilder.Entity("Coffee.Journal.Domain.Entities.CoffeeShop", b =>

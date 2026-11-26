@@ -512,10 +512,10 @@ public class CoffeeUseCaseTest
         return new CoffeeRoaster
         {
             Name = "Unique Cafés",
-            Rate = 5,
-            Review = "The best coffee roaster",
-            Recommend = true,
             HasMembershipOption = true,
+            City = "São Paulo",
+            State = "SP",
+            Country = "BR",
         };
     }
 

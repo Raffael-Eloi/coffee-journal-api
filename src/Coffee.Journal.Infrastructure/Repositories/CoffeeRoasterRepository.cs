@@ -1,4 +1,4 @@
-﻿using Coffee.Journal.Domain.Contracts.Repositories;
+using Coffee.Journal.Domain.Contracts.Repositories;
 using Coffee.Journal.Domain.Entities;
 using Coffee.Journal.Infrastructure.Database.Contexts;
 using Microsoft.EntityFrameworkCore;
@@ -15,7 +15,19 @@ internal sealed class CoffeeRoasterRepository : BaseRepository<CoffeeRoaster>, I
     {
         return await _dbContext.Set<CoffeeRoaster>()
             .AsNoTracking()
+            .Include(x => x.Images)
+            .Include(x => x.Classifications)
+            .AsSplitQuery()
             .OrderBy(x => x.Name)
             .ToListAsync();
+    }
+
+    public override async Task<CoffeeRoaster?> GetByIdAsync(Guid id)
+    {
+        return await _dbContext.Set<CoffeeRoaster>()
+            .Include(x => x.Images)
+            .Include(x => x.Classifications)
+            .AsSplitQuery()
+            .FirstOrDefaultAsync(x => x.Id == id);
     }
 }

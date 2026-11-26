@@ -1,4 +1,4 @@
-﻿using Coffee.Journal.Domain.Entities;
+using Coffee.Journal.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -17,22 +17,21 @@ internal sealed class CoffeeRoasterConfiguration : IEntityTypeConfiguration<Coff
             .IsRequired();
 
         builder
+            .Property(x => x.Description)
+            .HasMaxLength(4000);
+
+        builder
             .Property(x => x.Website)
             .HasMaxLength(500);
 
         builder
-            .Property(x => x.Rate)
-            .IsRequired();
+            .Property(x => x.InstagramUrl)
+            .HasMaxLength(500);
 
         builder
-            .Property(x => x.Review)
-            .HasMaxLength(4000)
-            .IsRequired();
+            .Property(x => x.PhoneNumber)
+            .HasMaxLength(30);
 
-        builder
-            .Property(x => x.Recommend)
-            .IsRequired();
-        
         builder
             .Property(x => x.HasMembershipOption)
             .IsRequired();
@@ -40,6 +39,25 @@ internal sealed class CoffeeRoasterConfiguration : IEntityTypeConfiguration<Coff
         builder
             .Property(x => x.LogoUrl)
             .HasMaxLength(4000);
+
+        builder
+            .Property(x => x.City)
+            .HasMaxLength(200)
+            .IsRequired();
+
+        builder
+            .Property(x => x.State)
+            .HasMaxLength(200)
+            .IsRequired();
+
+        builder
+            .Property(x => x.Country)
+            .HasMaxLength(200)
+            .IsRequired();
+
+        builder
+            .Property(x => x.Address)
+            .HasMaxLength(500);
 
         builder
             .Property(x => x.CreatedAt)
@@ -50,11 +68,25 @@ internal sealed class CoffeeRoasterConfiguration : IEntityTypeConfiguration<Coff
             .IsRequired();
 
         builder
-            .HasIndex(x => x.Name)
-            .IsUnique()
-            .HasDatabaseName("UX_CoffeeRoasters_Name"); ;
+            .HasMany(x => x.Images)
+            .WithOne()
+            .HasForeignKey(x => x.RoasterId)
+            .IsRequired()
+            .OnDelete(DeleteBehavior.Cascade);
 
         builder
-            .ToTable("CoffeeRoasters", t => t.HasCheckConstraint("CK_CoffeeRoasters_Rate", "[Rate] BETWEEN 1 AND 5"));
+            .HasMany(x => x.Classifications)
+            .WithOne()
+            .HasForeignKey(x => x.RoasterId)
+            .IsRequired()
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder
+            .HasIndex(x => x.Name)
+            .IsUnique()
+            .HasDatabaseName("UX_CoffeeRoasters_Name");
+
+        builder
+            .ToTable("CoffeeRoasters");
     }
 }
