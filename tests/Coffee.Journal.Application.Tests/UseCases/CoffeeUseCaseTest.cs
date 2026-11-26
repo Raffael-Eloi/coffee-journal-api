@@ -5,6 +5,7 @@ using Coffee.Journal.Application.UseCases;
 using Coffee.Journal.Domain.Contracts.Repositories;
 using Coffee.Journal.Domain.Contracts.Storage;
 using Coffee.Journal.Domain.Entities;
+using Coffee.Journal.Domain.Enums;
 using Moq;
 
 namespace Coffee.Journal.Application.Tests.UseCases;
@@ -57,9 +58,8 @@ public class CoffeeUseCaseTest
                 x.Name == request.Name &&
                 x.Description == request.Description &&
                 x.RoasterId == roaster.Id &&
-                x.Rate == request.Rate &&
-                x.Review == request.Review &&
-                x.Recommend == request.Recommend &&
+                x.Classification == request.Classification &&
+                x.ProductUrl == request.ProductUrl &&
                 x.Origin == request.Origin &&
                 x.Process == request.Process &&
                 x.RoastLevel == request.RoastLevel &&
@@ -170,9 +170,8 @@ public class CoffeeUseCaseTest
         Assert.Equal(coffee.Name, response.Name);
         Assert.Equal(coffee.Description, response.Description);
         Assert.Equal(coffee.RoasterId, response.RoasterId);
-        Assert.Equal(coffee.Rate, response.Rate);
-        Assert.Equal(coffee.Review, response.Review);
-        Assert.Equal(coffee.Recommend, response.Recommend);
+        Assert.Equal(coffee.Classification, response.Classification);
+        Assert.Equal(coffee.ProductUrl, response.ProductUrl);
         Assert.Equal(coffee.Origin, response.Origin);
         Assert.Equal(coffee.Process, response.Process);
         Assert.Equal(coffee.RoastLevel, response.RoastLevel);
@@ -222,9 +221,8 @@ public class CoffeeUseCaseTest
             Name = "Unique Coffee Updated",
             Description = "Updated description",
             RoasterId = roaster.Id,
-            Rate = 3,
-            Review = "Updated review",
-            Recommend = false,
+            Classification = CoffeeClassification.Specialty,
+            ProductUrl = "https://store.com/coffee",
             Origin = "Colombia",
             Process = "Washed",
             RoastLevel = "Dark",
@@ -264,9 +262,8 @@ public class CoffeeUseCaseTest
                 x.Name == request.Name &&
                 x.Description == request.Description &&
                 x.RoasterId == roaster.Id &&
-                x.Rate == request.Rate &&
-                x.Review == request.Review &&
-                x.Recommend == request.Recommend &&
+                x.Classification == request.Classification &&
+                x.ProductUrl == request.ProductUrl &&
                 x.Origin == request.Origin &&
                 x.Process == request.Process &&
                 x.RoastLevel == request.RoastLevel &&
@@ -526,9 +523,8 @@ public class CoffeeUseCaseTest
             Name = "Unique Coffee",
             Description = "A very good coffee",
             RoasterId = roasterId,
-            Rate = 5,
-            Review = "The best coffee",
-            Recommend = true,
+            Classification = CoffeeClassification.Specialty,
+            ProductUrl = "https://store.com/coffee",
             Origin = "Brazil",
             Process = "Natural",
             RoastLevel = "Medium",
@@ -553,9 +549,8 @@ public class CoffeeUseCaseTest
             Name = name,
             Description = "A very good coffee",
             RoasterId = Guid.NewGuid(),
-            Rate = 5,
-            Review = "The best coffee",
-            Recommend = true,
+            Classification = CoffeeClassification.Specialty,
+            ProductUrl = "https://store.com/coffee",
             Origin = "Brazil",
             Process = "Natural",
             RoastLevel = "Medium",

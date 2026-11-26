@@ -27,6 +27,9 @@ namespace Coffee.Journal.Infrastructure.Database.Migrations
                     b.Property<Guid>("Id")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<int>("Classification")
+                        .HasColumnType("int");
+
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
@@ -50,16 +53,9 @@ namespace Coffee.Journal.Infrastructure.Database.Migrations
                         .HasMaxLength(200)
                         .HasColumnType("nvarchar(200)");
 
-                    b.Property<int>("Rate")
-                        .HasColumnType("int");
-
-                    b.Property<bool>("Recommend")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Review")
-                        .IsRequired()
-                        .HasMaxLength(4000)
-                        .HasColumnType("nvarchar(4000)");
+                    b.Property<string>("ProductUrl")
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
 
                     b.Property<string>("RoastLevel")
                         .IsRequired()
@@ -88,10 +84,7 @@ namespace Coffee.Journal.Infrastructure.Database.Migrations
                         .IsUnique()
                         .HasDatabaseName("UX_Coffees_RoasterId_Name");
 
-                    b.ToTable("Coffees", null, t =>
-                        {
-                            t.HasCheckConstraint("CK_Coffees_Rate", "[Rate] BETWEEN 1 AND 5");
-                        });
+                    b.ToTable("Coffees", (string)null);
                 });
 
             modelBuilder.Entity("Coffee.Journal.Domain.Entities.CoffeeEquipment", b =>
@@ -323,6 +316,46 @@ namespace Coffee.Journal.Infrastructure.Database.Migrations
                             t.HasCheckConstraint("CK_CoffeePrices_Grams", "[Grams] > 0");
 
                             t.HasCheckConstraint("CK_CoffeePrices_Price", "[Price] > 0");
+                        });
+                });
+
+            modelBuilder.Entity("Coffee.Journal.Domain.Entities.CoffeeReview", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("CoffeeId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("ProfileId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("Rating")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("Recommend")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Review")
+                        .IsRequired()
+                        .HasMaxLength(4000)
+                        .HasColumnType("nvarchar(4000)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CoffeeId", "ProfileId")
+                        .IsUnique()
+                        .HasDatabaseName("UX_CoffeeReviews_CoffeeId_ProfileId");
+
+                    b.ToTable("CoffeeReviews", null, t =>
+                        {
+                            t.HasCheckConstraint("CK_CoffeeReviews_Rating", "[Rating] BETWEEN 1 AND 5");
                         });
                 });
 
@@ -598,6 +631,15 @@ namespace Coffee.Journal.Infrastructure.Database.Migrations
                 {
                     b.HasOne("Coffee.Journal.Domain.Entities.Coffee", null)
                         .WithMany("Prices")
+                        .HasForeignKey("CoffeeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Coffee.Journal.Domain.Entities.CoffeeReview", b =>
+                {
+                    b.HasOne("Coffee.Journal.Domain.Entities.Coffee", null)
+                        .WithMany()
                         .HasForeignKey("CoffeeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();

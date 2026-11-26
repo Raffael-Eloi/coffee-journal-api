@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using Coffee.Journal.Domain.Enums;
 
 namespace Coffee.Journal.Application.Contracts.Models;
 
@@ -17,15 +18,9 @@ public sealed class CoffeeRequest : BaseRequest, IValidatableObject
     [Required]
     public Guid? RoasterId { get; init; }
 
-    [Range(1, 5)]
-    public int Rate { get; init; }
-
-    [MaxLength(4000)]
     [Required]
-    public string Review { get; init; } = string.Empty;
-
-    [Required]
-    public bool? Recommend { get; init; }
+    [EnumDataType(typeof(CoffeeClassification))]
+    public CoffeeClassification? Classification { get; init; }
 
     [MaxLength(200)]
     [Required]
@@ -46,6 +41,10 @@ public sealed class CoffeeRequest : BaseRequest, IValidatableObject
     [MaxLength(1000)]
     [Required]
     public string TastingNotes { get; init; } = string.Empty;
+
+    [MaxLength(2000)]
+    [Url]
+    public string? ProductUrl { get; init; }
 
     [Required]
     public List<CoffeePriceRequest> Prices { get; init; } = [];

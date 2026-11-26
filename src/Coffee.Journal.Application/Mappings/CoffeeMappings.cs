@@ -12,14 +12,13 @@ internal static class CoffeeMappings
             Name = request.Name,
             Description = request.Description,
             RoasterId = request.RoasterId.GetValueOrDefault(),
-            Rate = request.Rate,
-            Review = request.Review,
-            Recommend = request.Recommend.GetValueOrDefault(),
+            Classification = request.Classification.GetValueOrDefault(),
             Origin = request.Origin,
             Process = request.Process,
             RoastLevel = request.RoastLevel,
             Variety = request.Variety,
             TastingNotes = request.TastingNotes,
+            ProductUrl = request.ProductUrl,
         };
 
         coffee.Prices = request.ToPrices(coffee.Id);
@@ -33,14 +32,13 @@ internal static class CoffeeMappings
         coffee.Name = request.Name;
         coffee.Description = request.Description;
         coffee.RoasterId = request.RoasterId.GetValueOrDefault();
-        coffee.Rate = request.Rate;
-        coffee.Review = request.Review;
-        coffee.Recommend = request.Recommend.GetValueOrDefault();
+        coffee.Classification = request.Classification.GetValueOrDefault();
         coffee.Origin = request.Origin;
         coffee.Process = request.Process;
         coffee.RoastLevel = request.RoastLevel;
         coffee.Variety = request.Variety;
         coffee.TastingNotes = request.TastingNotes;
+        coffee.ProductUrl = request.ProductUrl;
 
         // The price and image lists in the request replace the existing ones.
         coffee.Prices.Clear();
@@ -58,14 +56,13 @@ internal static class CoffeeMappings
             Name = coffee.Name,
             Description = coffee.Description,
             RoasterId = coffee.RoasterId,
-            Rate = coffee.Rate,
-            Review = coffee.Review,
-            Recommend = coffee.Recommend,
+            Classification = coffee.Classification,
             Origin = coffee.Origin,
             Process = coffee.Process,
             RoastLevel = coffee.RoastLevel,
             Variety = coffee.Variety,
             TastingNotes = coffee.TastingNotes,
+            ProductUrl = coffee.ProductUrl,
             Prices = coffee.Prices
                 .OrderBy(x => x.Grams)
                 .Select(x => new CoffeePriceResponse { Grams = x.Grams, Price = x.Price, Currency = x.Currency })

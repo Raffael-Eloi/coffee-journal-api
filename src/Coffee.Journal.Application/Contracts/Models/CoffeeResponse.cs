@@ -1,3 +1,5 @@
+using Coffee.Journal.Domain.Enums;
+
 namespace Coffee.Journal.Application.Contracts.Models;
 
 public sealed class CoffeeResponse : BaseResponse
@@ -10,11 +12,7 @@ public sealed class CoffeeResponse : BaseResponse
 
     public Guid RoasterId { get; init; }
 
-    public int Rate { get; init; }
-
-    public string Review { get; init; } = string.Empty;
-
-    public bool Recommend { get; init; }
+    public CoffeeClassification Classification { get; init; }
 
     public string Origin { get; init; } = string.Empty;
 
@@ -25,6 +23,8 @@ public sealed class CoffeeResponse : BaseResponse
     public string Variety { get; init; } = string.Empty;
 
     public string TastingNotes { get; init; } = string.Empty;
+
+    public string? ProductUrl { get; init; }
 
     public IReadOnlyList<CoffeePriceResponse> Prices { get; init; } = [];
 

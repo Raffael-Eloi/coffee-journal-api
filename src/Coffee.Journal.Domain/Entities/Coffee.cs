@@ -1,3 +1,5 @@
+using Coffee.Journal.Domain.Enums;
+
 namespace Coffee.Journal.Domain.Entities;
 
 public sealed class Coffee : BaseEntity
@@ -8,11 +10,7 @@ public sealed class Coffee : BaseEntity
 
     public required Guid RoasterId { get; set; }
 
-    public required int Rate { get; set; }
-
-    public required string Review { get; set; }
-
-    public required bool Recommend { get; set; }
+    public required CoffeeClassification Classification { get; set; }
 
     public required string Origin { get; set; }
 
@@ -23,6 +21,8 @@ public sealed class Coffee : BaseEntity
     public required string Variety { get; set; }
 
     public required string TastingNotes { get; set; }
+
+    public string? ProductUrl { get; set; }
 
     public List<CoffeePrice> Prices { get; set; } = [];
 

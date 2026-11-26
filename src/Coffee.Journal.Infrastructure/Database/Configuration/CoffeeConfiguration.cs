@@ -26,16 +26,8 @@ internal sealed class CoffeeConfiguration : IEntityTypeConfiguration<Domain.Enti
             .IsRequired();
 
         builder
-            .Property(x => x.Rate)
-            .IsRequired();
-
-        builder
-            .Property(x => x.Review)
-            .HasMaxLength(4000)
-            .IsRequired();
-
-        builder
-            .Property(x => x.Recommend)
+            .Property(x => x.Classification)
+            .HasConversion<int>()
             .IsRequired();
 
         builder
@@ -62,6 +54,10 @@ internal sealed class CoffeeConfiguration : IEntityTypeConfiguration<Domain.Enti
             .Property(x => x.TastingNotes)
             .HasMaxLength(1000)
             .IsRequired();
+
+        builder
+            .Property(x => x.ProductUrl)
+            .HasMaxLength(2000);
 
         builder
             .Property(x => x.CreatedAt)
@@ -98,6 +94,6 @@ internal sealed class CoffeeConfiguration : IEntityTypeConfiguration<Domain.Enti
             .HasDatabaseName("UX_Coffees_RoasterId_Name");
 
         builder
-            .ToTable("Coffees", t => t.HasCheckConstraint("CK_Coffees_Rate", "[Rate] BETWEEN 1 AND 5"));
+            .ToTable("Coffees");
     }
 }
