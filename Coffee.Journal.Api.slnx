@@ -12,6 +12,7 @@
     <File Path=".github/workflows/CI-CD-Pipeline.yml" />
     <File Path=".github/workflows/provisioning.yml" />
     <File Path=".gitignore" />
+    <File Path="README.md" />
     <File Path="src/Coffee.Journal.API/Dockerfile" />
   </Folder>
   <Folder Name="/src/">
