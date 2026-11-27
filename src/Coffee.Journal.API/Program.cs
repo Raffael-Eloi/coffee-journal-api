@@ -60,6 +60,8 @@ builder.Services.AddInfrastructure(
     ?? throw new InvalidOperationException("Connection string 'CoffeeJournal' not found."),
     blobStorageOptions);
 
+builder.Services.AddHealthChecks().AddInfrastructureHealthChecks();
+
 builder.Services.AddScoped<IProfileUseCase, ProfileUseCase>();
 builder.Services.AddScoped<IProfileRoleUseCase, ProfileRoleUseCase>();
 builder.Services.AddScoped<ICoffeeRoasterReviewUseCase, CoffeeRoasterReviewUseCase>();
@@ -88,6 +90,7 @@ app.MapScalarApiReference();
 
 app.UseHttpsRedirection();
 
+HealthEndpoint.Map(app);
 MeEndpoint.Map(app);
 ProfileEndpoint.Map(app);
 ProfileRoleEndpoint.Map(app);
