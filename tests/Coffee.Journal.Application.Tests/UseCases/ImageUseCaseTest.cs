@@ -35,7 +35,7 @@ public class ImageUseCaseTest
 
         #region Act
 
-        ImageResponse response = await _useCase.UploadAsync(stream, contentType, stream.Length);
+        ImageResponse response = await _useCase.UploadAsync(stream, contentType, stream.Length, TestContext.Current.CancellationToken);
 
         #endregion
 
@@ -64,7 +64,7 @@ public class ImageUseCaseTest
         #region Act
 
         RequestValidationException exception = await Assert.ThrowsAsync<RequestValidationException>(
-            () => _useCase.UploadAsync(stream, contentType, length));
+            () => _useCase.UploadAsync(stream, contentType, length, TestContext.Current.CancellationToken));
 
         #endregion
 
