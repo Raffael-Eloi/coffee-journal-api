@@ -1,6 +1,7 @@
 using Coffee.Journal.API.Authentication;
 using Coffee.Journal.API.Endpoints;
 using Coffee.Journal.API.ExceptionHandlers;
+using Coffee.Journal.API.Telemetry;
 using Coffee.Journal.Application.Contracts.UseCases;
 using Coffee.Journal.Application.UseCases;
 using Coffee.Journal.Infrastructure;
@@ -30,6 +31,8 @@ builder.Services.AddCors(options =>
             .SetPreflightMaxAge(TimeSpan.FromMinutes(10));
         });
 });
+
+builder.Services.AddApiTelemetry(builder.Configuration);
 
 builder.Services.AddApiAuthentication(builder.Configuration);
 

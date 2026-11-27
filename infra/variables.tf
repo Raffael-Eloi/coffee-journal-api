@@ -31,3 +31,11 @@ variable "sql_admin_password" {
   type      = string
   sensitive = true
 }
+
+variable "allowed_web_client_0" {
+  type = string
+}
+
+variable "allowed_web_client_1" {
+  type = string
+}

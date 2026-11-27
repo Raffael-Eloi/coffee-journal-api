@@ -24,6 +24,11 @@ resource "azurerm_linux_web_app" "main" {
     WEBSITES_PORT                   = "8080"
     "BlobStorage__ConnectionString" = azurerm_storage_account.main.primary_connection_string
     "BlobStorage__ContainerName"    = azurerm_storage_container.main.name
+
+    "APPLICATIONINSIGHTS_CONNECTION_STRING" = azurerm_application_insights.main.connection_string
+
+    "AllowedWebClient__0" = var.allowed_web_client_0
+    "AllowedWebClient__1" = var.allowed_web_client_1
   }
 
   connection_string {
@@ -42,7 +47,7 @@ resource "azurerm_linux_web_app" "main" {
   }
 
   lifecycle {
-    ignore_changes = [site_config[0].application_stack, app_settings]
+    ignore_changes = [site_config[0].application_stack]
   }
 }
 
@@ -96,4 +101,25 @@ resource "azurerm_storage_container" "main" {
   name                  = "coffee-journal-images"
   storage_account_id    = azurerm_storage_account.main.id
   container_access_type = "blob"
+}
+
+# Logs and telemetry: Application Insights sends the data to this Log Analytics workspace
+resource "azurerm_log_analytics_workspace" "main" {
+  name                = "log-${var.application_name}-${var.environment_name}"
+  location            = azurerm_resource_group.main.location
+  resource_group_name = azurerm_resource_group.main.name
+  sku                 = "PerGB2018"
+  retention_in_days   = 30
+  daily_quota_gb      = 1
+  tags                = local.tags
+}
+
+resource "azurerm_application_insights" "main" {
+  name                 = "appi-${var.application_name}-${var.environment_name}"
+  location             = azurerm_resource_group.main.location
+  resource_group_name  = azurerm_resource_group.main.name
+  application_type     = "web"
+  workspace_id         = azurerm_log_analytics_workspace.main.id
+  daily_data_cap_in_gb = 1
+  tags                 = local.tags
 }
