@@ -1,8 +1,9 @@
 using Coffee.Journal.Application.Contracts;
+using Coffee.Journal.Domain.Contracts;
 
 namespace Coffee.Journal.API.Authentication;
 
-internal sealed class HttpContextCurrentUser : ICurrentUser
+internal sealed class HttpContextCurrentUser : ICurrentUser, IAuditUser
 {
     private readonly CurrentUserClaims _claims;
 

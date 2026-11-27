@@ -7,6 +7,7 @@ namespace Coffee.Journal.Infrastructure.Database.Configuration;
 internal sealed class RoleConfiguration : IEntityTypeConfiguration<Role>
 {
     private static readonly DateTime SeedDate = new(2026, 11, 26, 0, 0, 0, DateTimeKind.Utc);
+    private const string SeedUser = "system";
 
     public void Configure(EntityTypeBuilder<Role> builder)
     {
@@ -51,6 +52,8 @@ internal sealed class RoleConfiguration : IEntityTypeConfiguration<Role>
                 Description = "Everything, including delete and managing roles.",
                 CreatedAt = SeedDate,
                 UpdatedAt = SeedDate,
+                CreatedBy = SeedUser,
+                UpdatedBy = SeedUser,
             },
             new
             {
@@ -59,6 +62,8 @@ internal sealed class RoleConfiguration : IEntityTypeConfiguration<Role>
                 Description = "Can create and update roasters, shops and coffees.",
                 CreatedAt = SeedDate,
                 UpdatedAt = SeedDate,
+                CreatedBy = SeedUser,
+                UpdatedBy = SeedUser,
             });
     }
 }

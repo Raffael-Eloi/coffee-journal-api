@@ -1,4 +1,5 @@
 using Coffee.Journal.Application.Contracts;
+using Coffee.Journal.Domain.Contracts;
 using Coffee.Journal.Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -60,7 +61,9 @@ internal static class AuthenticationExtensions
         services.AddScoped<IAuthorizationHandler, RoleAuthorizationHandler>();
 
         services.AddHttpContextAccessor();
-        services.AddScoped<ICurrentUser, HttpContextCurrentUser>();
+        services.AddScoped<HttpContextCurrentUser>();
+        services.AddScoped<ICurrentUser>(serviceProvider => serviceProvider.GetRequiredService<HttpContextCurrentUser>());
+        services.AddScoped<IAuditUser>(serviceProvider => serviceProvider.GetRequiredService<HttpContextCurrentUser>());
 
         return services;
     }

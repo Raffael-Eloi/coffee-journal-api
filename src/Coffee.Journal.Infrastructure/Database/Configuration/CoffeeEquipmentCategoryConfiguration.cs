@@ -7,6 +7,7 @@ namespace Coffee.Journal.Infrastructure.Database.Configuration;
 internal sealed class CoffeeEquipmentCategoryConfiguration : IEntityTypeConfiguration<CoffeeEquipmentCategory>
 {
     private static readonly DateTime SeedDate = new(2026, 11, 25, 0, 0, 0, DateTimeKind.Utc);
+    private const string SeedUser = "system";
 
     public void Configure(EntityTypeBuilder<CoffeeEquipmentCategory> builder)
     {
@@ -62,6 +63,8 @@ internal sealed class CoffeeEquipmentCategoryConfiguration : IEntityTypeConfigur
             Description = description,
             CreatedAt = SeedDate,
             UpdatedAt = SeedDate,
+            CreatedBy = SeedUser,
+            UpdatedBy = SeedUser,
         };
     }
 }

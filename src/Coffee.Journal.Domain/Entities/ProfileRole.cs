@@ -1,6 +1,6 @@
 namespace Coffee.Journal.Domain.Entities;
 
-public sealed class ProfileRole
+public sealed class ProfileRole : IAuditable
 {
     public Guid ProfileId { get; set; }
 
@@ -11,4 +11,8 @@ public sealed class ProfileRole
     public DateTime CreatedAt { get; set; }
 
     public DateTime UpdatedAt { get; set; }
+
+    public string CreatedBy { get; set; } = string.Empty;
+
+    public string UpdatedBy { get; set; } = string.Empty;
 }

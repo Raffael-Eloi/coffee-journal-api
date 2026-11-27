@@ -33,6 +33,11 @@ namespace Coffee.Journal.Infrastructure.Database.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(320)
+                        .HasColumnType("nvarchar(320)");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasMaxLength(4000)
@@ -73,6 +78,11 @@ namespace Coffee.Journal.Infrastructure.Database.Migrations
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("UpdatedBy")
+                        .IsRequired()
+                        .HasMaxLength(320)
+                        .HasColumnType("nvarchar(320)");
+
                     b.Property<string>("Variety")
                         .IsRequired()
                         .HasMaxLength(200)
@@ -99,6 +109,11 @@ namespace Coffee.Journal.Infrastructure.Database.Migrations
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(320)
+                        .HasColumnType("nvarchar(320)");
 
                     b.Property<string>("Currency")
                         .HasMaxLength(3)
@@ -152,6 +167,11 @@ namespace Coffee.Journal.Infrastructure.Database.Migrations
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("UpdatedBy")
+                        .IsRequired()
+                        .HasMaxLength(320)
+                        .HasColumnType("nvarchar(320)");
+
                     b.HasKey("Id");
 
                     b.HasIndex("EquipmentCategoryId");
@@ -174,6 +194,11 @@ namespace Coffee.Journal.Infrastructure.Database.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(320)
+                        .HasColumnType("nvarchar(320)");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasMaxLength(500)
@@ -186,6 +211,11 @@ namespace Coffee.Journal.Infrastructure.Database.Migrations
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("UpdatedBy")
+                        .IsRequired()
+                        .HasMaxLength(320)
+                        .HasColumnType("nvarchar(320)");
 
                     b.HasKey("Id");
 
@@ -200,57 +230,71 @@ namespace Coffee.Journal.Infrastructure.Database.Migrations
                         {
                             Id = new Guid("a1f4c3a0-0001-4b1e-9c11-5d0a6e000001"),
                             CreatedAt = new DateTime(2026, 11, 25, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "system",
                             Description = "Burr and blade grinders, manual or electric.",
                             Name = "Grinder",
-                            UpdatedAt = new DateTime(2026, 11, 25, 0, 0, 0, 0, DateTimeKind.Utc)
+                            UpdatedAt = new DateTime(2026, 11, 25, 0, 0, 0, 0, DateTimeKind.Utc),
+                            UpdatedBy = "system"
                         },
                         new
                         {
                             Id = new Guid("a1f4c3a0-0002-4b1e-9c11-5d0a6e000002"),
                             CreatedAt = new DateTime(2026, 11, 25, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "system",
                             Description = "Paper filters used to brew filter coffee.",
                             Name = "PaperFilter",
-                            UpdatedAt = new DateTime(2026, 11, 25, 0, 0, 0, 0, DateTimeKind.Utc)
+                            UpdatedAt = new DateTime(2026, 11, 25, 0, 0, 0, 0, DateTimeKind.Utc),
+                            UpdatedBy = "system"
                         },
                         new
                         {
                             Id = new Guid("a1f4c3a0-0003-4b1e-9c11-5d0a6e000003"),
                             CreatedAt = new DateTime(2026, 11, 25, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "system",
                             Description = "Scales used to weigh coffee and water.",
                             Name = "Scale",
-                            UpdatedAt = new DateTime(2026, 11, 25, 0, 0, 0, 0, DateTimeKind.Utc)
+                            UpdatedAt = new DateTime(2026, 11, 25, 0, 0, 0, 0, DateTimeKind.Utc),
+                            UpdatedBy = "system"
                         },
                         new
                         {
                             Id = new Guid("a1f4c3a0-0004-4b1e-9c11-5d0a6e000004"),
                             CreatedAt = new DateTime(2026, 11, 25, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "system",
                             Description = "Mugs and cups used to drink coffee.",
                             Name = "Mug",
-                            UpdatedAt = new DateTime(2026, 11, 25, 0, 0, 0, 0, DateTimeKind.Utc)
+                            UpdatedAt = new DateTime(2026, 11, 25, 0, 0, 0, 0, DateTimeKind.Utc),
+                            UpdatedBy = "system"
                         },
                         new
                         {
                             Id = new Guid("a1f4c3a0-0005-4b1e-9c11-5d0a6e000005"),
                             CreatedAt = new DateTime(2026, 11, 25, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "system",
                             Description = "Kettles used to heat and pour water.",
                             Name = "Kettle",
-                            UpdatedAt = new DateTime(2026, 11, 25, 0, 0, 0, 0, DateTimeKind.Utc)
+                            UpdatedAt = new DateTime(2026, 11, 25, 0, 0, 0, 0, DateTimeKind.Utc),
+                            UpdatedBy = "system"
                         },
                         new
                         {
                             Id = new Guid("a1f4c3a0-0006-4b1e-9c11-5d0a6e000006"),
                             CreatedAt = new DateTime(2026, 11, 25, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "system",
                             Description = "Brewing devices such as V60, AeroPress or espresso machines.",
                             Name = "Brewer",
-                            UpdatedAt = new DateTime(2026, 11, 25, 0, 0, 0, 0, DateTimeKind.Utc)
+                            UpdatedAt = new DateTime(2026, 11, 25, 0, 0, 0, 0, DateTimeKind.Utc),
+                            UpdatedBy = "system"
                         },
                         new
                         {
                             Id = new Guid("a1f4c3a0-0007-4b1e-9c11-5d0a6e000007"),
                             CreatedAt = new DateTime(2026, 11, 25, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "system",
                             Description = "Any other coffee accessory.",
                             Name = "Accessory",
-                            UpdatedAt = new DateTime(2026, 11, 25, 0, 0, 0, 0, DateTimeKind.Utc)
+                            UpdatedAt = new DateTime(2026, 11, 25, 0, 0, 0, 0, DateTimeKind.Utc),
+                            UpdatedBy = "system"
                         });
                 });
 
@@ -265,8 +309,18 @@ namespace Coffee.Journal.Infrastructure.Database.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(320)
+                        .HasColumnType("nvarchar(320)");
+
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("UpdatedBy")
+                        .IsRequired()
+                        .HasMaxLength(320)
+                        .HasColumnType("nvarchar(320)");
 
                     b.Property<string>("Url")
                         .IsRequired()
@@ -291,6 +345,11 @@ namespace Coffee.Journal.Infrastructure.Database.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(320)
+                        .HasColumnType("nvarchar(320)");
+
                     b.Property<string>("Currency")
                         .IsRequired()
                         .ValueGeneratedOnAdd()
@@ -309,6 +368,11 @@ namespace Coffee.Journal.Infrastructure.Database.Migrations
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("UpdatedBy")
+                        .IsRequired()
+                        .HasMaxLength(320)
+                        .HasColumnType("nvarchar(320)");
 
                     b.HasKey("Id");
 
@@ -335,6 +399,11 @@ namespace Coffee.Journal.Infrastructure.Database.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(320)
+                        .HasColumnType("nvarchar(320)");
+
                     b.Property<Guid>("ProfileId")
                         .HasColumnType("uniqueidentifier");
 
@@ -351,6 +420,11 @@ namespace Coffee.Journal.Infrastructure.Database.Migrations
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("UpdatedBy")
+                        .IsRequired()
+                        .HasMaxLength(320)
+                        .HasColumnType("nvarchar(320)");
 
                     b.HasKey("Id");
 
@@ -389,6 +463,11 @@ namespace Coffee.Journal.Infrastructure.Database.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(320)
+                        .HasColumnType("nvarchar(320)");
+
                     b.Property<string>("Description")
                         .HasMaxLength(4000)
                         .HasColumnType("nvarchar(4000)");
@@ -420,6 +499,11 @@ namespace Coffee.Journal.Infrastructure.Database.Migrations
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("UpdatedBy")
+                        .IsRequired()
+                        .HasMaxLength(320)
+                        .HasColumnType("nvarchar(320)");
 
                     b.Property<string>("Website")
                         .HasMaxLength(500)
@@ -455,11 +539,21 @@ namespace Coffee.Journal.Infrastructure.Database.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(320)
+                        .HasColumnType("nvarchar(320)");
+
                     b.Property<Guid>("RoasterId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("UpdatedBy")
+                        .IsRequired()
+                        .HasMaxLength(320)
+                        .HasColumnType("nvarchar(320)");
 
                     b.Property<string>("Url")
                         .IsRequired()
@@ -481,6 +575,11 @@ namespace Coffee.Journal.Infrastructure.Database.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(320)
+                        .HasColumnType("nvarchar(320)");
+
                     b.Property<Guid>("ProfileId")
                         .HasColumnType("uniqueidentifier");
 
@@ -500,6 +599,11 @@ namespace Coffee.Journal.Infrastructure.Database.Migrations
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("UpdatedBy")
+                        .IsRequired()
+                        .HasMaxLength(320)
+                        .HasColumnType("nvarchar(320)");
 
                     b.HasKey("Id");
 
@@ -538,6 +642,11 @@ namespace Coffee.Journal.Infrastructure.Database.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(320)
+                        .HasColumnType("nvarchar(320)");
+
                     b.Property<string>("Description")
                         .HasMaxLength(4000)
                         .HasColumnType("nvarchar(4000)");
@@ -567,6 +676,11 @@ namespace Coffee.Journal.Infrastructure.Database.Migrations
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("UpdatedBy")
+                        .IsRequired()
+                        .HasMaxLength(320)
+                        .HasColumnType("nvarchar(320)");
 
                     b.Property<string>("Website")
                         .HasMaxLength(500)
@@ -615,11 +729,21 @@ namespace Coffee.Journal.Infrastructure.Database.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(320)
+                        .HasColumnType("nvarchar(320)");
+
                     b.Property<Guid>("ShopId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("UpdatedBy")
+                        .IsRequired()
+                        .HasMaxLength(320)
+                        .HasColumnType("nvarchar(320)");
 
                     b.Property<string>("Url")
                         .IsRequired()
@@ -644,6 +768,11 @@ namespace Coffee.Journal.Infrastructure.Database.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(320)
+                        .HasColumnType("nvarchar(320)");
+
                     b.Property<int>("DayOfWeek")
                         .HasColumnType("int");
 
@@ -655,6 +784,11 @@ namespace Coffee.Journal.Infrastructure.Database.Migrations
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("UpdatedBy")
+                        .IsRequired()
+                        .HasMaxLength(320)
+                        .HasColumnType("nvarchar(320)");
 
                     b.HasKey("Id");
 
@@ -678,6 +812,11 @@ namespace Coffee.Journal.Infrastructure.Database.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(320)
+                        .HasColumnType("nvarchar(320)");
+
                     b.Property<Guid>("ProfileId")
                         .HasColumnType("uniqueidentifier");
 
@@ -697,6 +836,11 @@ namespace Coffee.Journal.Infrastructure.Database.Migrations
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("UpdatedBy")
+                        .IsRequired()
+                        .HasMaxLength(320)
+                        .HasColumnType("nvarchar(320)");
 
                     b.HasKey("Id");
 
@@ -738,6 +882,11 @@ namespace Coffee.Journal.Infrastructure.Database.Migrations
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(320)
+                        .HasColumnType("nvarchar(320)");
 
                     b.Property<string>("Email")
                         .IsRequired()
@@ -787,6 +936,11 @@ namespace Coffee.Journal.Infrastructure.Database.Migrations
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("UpdatedBy")
+                        .IsRequired()
+                        .HasMaxLength(320)
+                        .HasColumnType("nvarchar(320)");
+
                     b.Property<string>("Website")
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
@@ -823,8 +977,18 @@ namespace Coffee.Journal.Infrastructure.Database.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(320)
+                        .HasColumnType("nvarchar(320)");
+
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("UpdatedBy")
+                        .IsRequired()
+                        .HasMaxLength(320)
+                        .HasColumnType("nvarchar(320)");
 
                     b.HasKey("RoleId", "ProfileId");
 
@@ -841,6 +1005,11 @@ namespace Coffee.Journal.Infrastructure.Database.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(320)
+                        .HasColumnType("nvarchar(320)");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasMaxLength(500)
@@ -853,6 +1022,11 @@ namespace Coffee.Journal.Infrastructure.Database.Migrations
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("UpdatedBy")
+                        .IsRequired()
+                        .HasMaxLength(320)
+                        .HasColumnType("nvarchar(320)");
 
                     b.HasKey("Id");
 
@@ -867,17 +1041,21 @@ namespace Coffee.Journal.Infrastructure.Database.Migrations
                         {
                             Id = new Guid("b2e5d4b1-0001-4c2f-8d22-6e1b7f000001"),
                             CreatedAt = new DateTime(2026, 11, 26, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "system",
                             Description = "Everything, including delete and managing roles.",
                             Name = "Admin",
-                            UpdatedAt = new DateTime(2026, 11, 26, 0, 0, 0, 0, DateTimeKind.Utc)
+                            UpdatedAt = new DateTime(2026, 11, 26, 0, 0, 0, 0, DateTimeKind.Utc),
+                            UpdatedBy = "system"
                         },
                         new
                         {
                             Id = new Guid("b2e5d4b1-0002-4c2f-8d22-6e1b7f000002"),
                             CreatedAt = new DateTime(2026, 11, 26, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CreatedBy = "system",
                             Description = "Can create and update roasters, shops and coffees.",
                             Name = "Contributor",
-                            UpdatedAt = new DateTime(2026, 11, 26, 0, 0, 0, 0, DateTimeKind.Utc)
+                            UpdatedAt = new DateTime(2026, 11, 26, 0, 0, 0, 0, DateTimeKind.Utc),
+                            UpdatedBy = "system"
                         });
                 });
 
